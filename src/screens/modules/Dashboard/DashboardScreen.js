@@ -47,6 +47,7 @@ const DashboardScreen = () => {
     }, [dispatch]),
   );
 
+
   const isLoading = getPolicyRequestStatus === RequestStatus.INPROGRESS;
 
   const totalPremium = `₹ ${formatDecimals(policy?.totalPremium) || 0}`;

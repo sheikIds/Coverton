@@ -20,6 +20,7 @@ export const GET_CUSTOMER_FIRST_LEVEL = BASE + 'Customer/CustomerFirstLevel'
 export const GET_CUSTOMER_SECOND_LEVEL = BASE + 'Customer/CustomerSecondLevel'
 export const GET_INSURED_CUSTOMER = BASE + 'Customer/Insured-dropdown-by-customerid'
 export const CREATE_IGT = BASE + 'IGT'
+export const CREATE_HEALTH_IGT = BASE + 'IGT/Health'
 
 // Authentication Endpoints
 export const SEND_OTP = BASE + 'Login/Send-OTP'

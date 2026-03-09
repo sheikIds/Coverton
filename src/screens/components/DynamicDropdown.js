@@ -1,6 +1,6 @@
-import React, {useMemo, useState, useCallback} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {Dropdown} from 'react-native-element-dropdown';
+import React, { useMemo, useState, useCallback } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { Dropdown } from 'react-native-element-dropdown';
 
 const DynamicDropdown = (props) => {
   const {
@@ -36,17 +36,17 @@ const DynamicDropdown = (props) => {
 
     return isPatient
       ? dropdownData.map(item => {
-          const dynamicSelectedField = `${`${item?.Pt_Name} | ${item?.Pt_First_Age}`} | ${item?.RelationShip_Name}`;
+        const dynamicSelectedField = `${`${item?.Pt_Name} | ${item?.Pt_First_Age}`} | ${item?.RelationShip_Name}`;
 
-          return {
-            ...item,
-            customDisplay: dynamicSelectedField,
-            [`${labelField}_Display`]: (item?.[labelField]),
-          };
-        })
+        return {
+          ...item,
+          customDisplay: dynamicSelectedField,
+          [`${labelField}_Display`]: (item?.[labelField]),
+        };
+      })
       : dropdownData.map(item => {
-          return { ...item, [`${labelField}_Display`]: (item?.[labelField])};
-        });
+        return { ...item, [`${labelField}_Display`]: (item?.[labelField]) };
+      });
   }, [dropdownData, isPatient, labelField])
 
   const renderLabel = useCallback(() => {
@@ -79,39 +79,45 @@ const DynamicDropdown = (props) => {
 
   const isDisabled = disabled || processedData?.length === 0;
 
+  const filteredListContainerStyle = useMemo(() => {
+    if (!propContainerStyle) return {};
+    const { height, justifyContent, ...rest } = StyleSheet.flatten(propContainerStyle);
+    return rest;
+  }, [propContainerStyle]);
+
   return (
     <View style={containerStyle}>
       {showLabel ? renderLabel() : null}
       <Dropdown
-  disable={isDisabled}
-  style={[
-    styles.dropdown,
-    propContainerStyle,
-    isFocus && focusedDropdownStyle,
-    isDisabled ? styles.disabledBackground : null,
-  ]}
-  placeholderStyle={[styles.placeholderStyle, propPlaceholderStyle]}
-  selectedTextStyle={[styles.selectedTextStyle, propSelectedTextStyle]}
-  inputSearchStyle={styles.inputSearchStyle}
-  iconStyle={styles.iconStyle}
-  containerStyle={[styles.dropdownListContainer, propContainerStyle]}
-  activeColor="transparent" // ✅ Prevents background highlight/border
-  itemContainerStyle={[styles.itemContainerStyle, { borderWidth: 0 }]} // ✅ Removes border
-  itemTextStyle={styles.itemTextStyle}
-  data={processedData}
-  renderItem={renderItem}
-  search={isSearch}
-  maxHeight={300}
-  labelField={isPatient ? 'customDisplay' : `${labelField}_Display`}
-  valueField={field === 'testCode' ? labelField : valueField}
-  placeholder={!isFocus ? placeholder : '...'}
-  searchPlaceholder="Search..."
-  showsVerticalScrollIndicator={false}
-  value={selectedOption}
-  onFocus={() => setIsFocus(true)}
-  onBlur={() => setIsFocus(false)}
-  onChange={handleChange}
-/>
+        disable={isDisabled}
+        style={[
+          styles.dropdown,
+          propContainerStyle,
+          isFocus && focusedDropdownStyle,
+          isDisabled ? styles.disabledBackground : null,
+        ]}
+        placeholderStyle={[styles.placeholderStyle, propPlaceholderStyle]}
+        selectedTextStyle={[styles.selectedTextStyle, propSelectedTextStyle]}
+        inputSearchStyle={styles.inputSearchStyle}
+        iconStyle={styles.iconStyle}
+        containerStyle={[styles.dropdownListContainer, filteredListContainerStyle]}
+        activeColor="transparent" // ✅ Prevents background highlight/border
+        itemContainerStyle={[styles.itemContainerStyle, { borderWidth: 0 }]} // ✅ Removes border
+        itemTextStyle={styles.itemTextStyle}
+        data={processedData}
+        renderItem={renderItem}
+        search={isSearch}
+        maxHeight={300}
+        labelField={isPatient ? 'customDisplay' : `${labelField}_Display`}
+        valueField={field === 'testCode' ? labelField : valueField}
+        placeholder={!isFocus ? placeholder : '...'}
+        searchPlaceholder="Search..."
+        showsVerticalScrollIndicator={false}
+        value={selectedOption}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
+        onChange={handleChange}
+      />
     </View>
   );
 };

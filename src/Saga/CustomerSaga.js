@@ -85,11 +85,11 @@ export function* getCustomerById({ insurerId }) {
   }
 }
 
-export function* createCustomer ({ customerData }) {
+export function* createCustomer({ customerData }) {
   try {
-    const response = yield call(CustomerAPI.createCustomer,{ customerData })
+    const response = yield call(CustomerAPI.createCustomer, { customerData })
 
-if (response?.err) {
+    if (response?.err) {
       yield put(CustomerActions.setCreateCustomerRequestStatus(RequestStatus.ERROR))
       return
     }
@@ -109,20 +109,20 @@ export function* getCustomerFirstLevel() {
       return
     }
     const customers = response.data ?? response ?? []
-    
+
     yield all([
       put(CustomerActions.setCustomerFirstLevelRequestStatus(RequestStatus.OK)),
       put(CustomerActions.storeCustomerFirstLevel(customers))
     ])
   } catch (err) {
-    console.log({err})
+    console.log({ err })
     yield put(CustomerActions.setCustomerFirstLevelRequestStatus(RequestStatus.ERROR))
   }
 }
 
-export function* getCustomerSecondLevel({ customerId}) {
+export function* getCustomerSecondLevel({ customerId }) {
   try {
-    const response = yield call(CustomerAPI.getCustomerSecondLevel,{customerId})
+    const response = yield call(CustomerAPI.getCustomerSecondLevel, { customerId })
     if (response?.err) {
       yield put(CustomerActions.setCustomerSecondLevelRequestStatus(RequestStatus.ERROR))
       return
@@ -160,11 +160,11 @@ export function* getInsuredCustomer({ customerId, selfId }) {
   }
 }
 
-export function* createIGT ({ igtData }) {
+export function* createIGT({ igtData }) {
   try {
-    const response = yield call(CustomerAPI.createIGT,{ igtData })
+    const response = yield call(CustomerAPI.createIGT, { igtData })
 
-if (response?.err) {
+    if (response?.err) {
       yield put(CustomerActions.setCreateIGTRequestStatus(RequestStatus.ERROR))
       return
     }
@@ -175,5 +175,22 @@ if (response?.err) {
   } catch (e) {
     console.error('createLead saga error', e)
     yield put(CustomerActions.setCreateIGTRequestStatus(RequestStatus.ERROR))
+  }
+}
+
+export function* createHealthIGT({ healthIGT }) {
+  try {
+    const response = yield call(CustomerAPI.createHealthIGT, { healthIGT })
+
+    if (response?.err) {
+      yield put(CustomerActions.setCreateHealthIGTRequestStatus(RequestStatus.ERROR))
+      return
+    }
+    yield all([
+      put(CustomerActions.setCreateHealthIGTRequestStatus(RequestStatus.OK)),
+    ])
+  } catch (e) {
+    console.error('createHealthIGT saga error', e)
+    yield put(CustomerActions.setCreateHealthIGTRequestStatus(RequestStatus.ERROR))
   }
 }

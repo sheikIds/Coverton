@@ -209,7 +209,7 @@ const CustomerScreen = props => {
               {/* <CustomerCard data={item} leadData={item} onPress={() => { navigation.getParent()?.navigate('PolicyDetails', { leadData: item }) }} /> */}
             </View>
           )}
-          contentContainerStyle={{ paddingBottom: 100 }}
+          contentContainerStyle={{ paddingBottom: 180 }}
           // renderHiddenItem={renderHiddenItem}
           rightOpenValue={-98}
           disableLeftSwipe

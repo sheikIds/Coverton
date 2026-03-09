@@ -104,3 +104,14 @@ export const createIGT = async ({ igtData }) => {
     throw error?.response?.data || error;
   }
 };
+
+export const createHealthIGT = async ({ healthIGT }) => {
+  try {
+    const response = await api.post(Endpoints.CREATE_HEALTH_IGT, healthIGT);
+
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error?.response?.data || error);
+    throw error?.response?.data || error;
+  }
+};

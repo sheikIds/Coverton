@@ -279,6 +279,11 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 
   const localImageSource = require('./src/assets/images/CovertonAppLogo.png');
 
+  const user = useSelector((state) => state?.auth?.user?.userName);
+
+  console.log({user})
+
+
 
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContent}>
@@ -289,6 +294,9 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
         <TouchableOpacity onPress={() => props.navigation.closeDrawer()} style={styles.closeButton}>
           <MaterialDesignIcons name="close" size={24} color={COLOR.PRIMARY_COLOR} />
         </TouchableOpacity>
+      </View>
+      <View>
+        <Text numberOfLines={1}  style={styles.headerTitle}>Welcome! {`${user}`}</Text>
       </View>
       {drawerItems.map(item => {
         if (item.tab === 'Logout') {
@@ -306,7 +314,6 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
             />
           );
         }
-
         return (
           <DrawerItem
             key={item.tab}

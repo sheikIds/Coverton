@@ -19,6 +19,7 @@ export const INITIAL_STATE = Immutable({
   insuredCustomer: [],
   getInsuredCustomerRequestStatus: RequestStatus.INITIAL,
   createIGTRequestStatus: RequestStatus.INITIAL,
+  createHealthIGTRequestStatus: RequestStatus.INITIAL,
 });
 
 const { Types, Creators } = createActions({
@@ -34,7 +35,7 @@ const { Types, Creators } = createActions({
   getCustomerById: ['insurerId'],
   setCustomerByIdRequestStatus: ['status'],
   storeCustomerById: ['customer'],
-  createCustomer: [ 'customerData' ],
+  createCustomer: ['customerData'],
   setCreateCustomerRequestStatus: ['status'],
   getCustomerFirstLevel: [],
   setCustomerFirstLevelRequestStatus: ['status'],
@@ -45,8 +46,10 @@ const { Types, Creators } = createActions({
   getInsuredCustomer: ['customerId', 'selfId'],
   setInsuredCustomerRequestStatus: ['status'],
   storeInsuredCustomer: ['insurer'],
-  createIGT: [ 'igtData' ],
+  createIGT: ['igtData'],
   setCreateIGTRequestStatus: ['status'],
+  createHealthIGT: ['healthIGT'],
+  setCreateHealthIGTRequestStatus: ['status'],
 });
 
 export const CustomerTypes = Types;
@@ -128,7 +131,7 @@ export const createCustomer = (state, { customerData }) => {
   return state.merge({ createCustomerRequestStatus: RequestStatus.INPROGRESS })
 }
 
-export const setCreateCustomerRequestStatus = (state,{ status }) =>
+export const setCreateCustomerRequestStatus = (state, { status }) =>
   state.merge({ createCustomerRequestStatus: status })
 
 export const getCustomerFirstLevel = (state = INITIAL_STATE, action = {}) => {
@@ -185,8 +188,15 @@ export const createIGT = (state, { igtData }) => {
   return state.merge({ createIGTRequestStatus: RequestStatus.INPROGRESS })
 }
 
-export const setCreateIGTRequestStatus = (state,{ status }) =>
+export const setCreateIGTRequestStatus = (state, { status }) =>
   state.merge({ createIGTRequestStatus: status })
+
+export const createHealthIGT = (state, { healthIGT }) => {
+  return state.merge({ createHealthIGTRequestStatus: RequestStatus.INPROGRESS })
+}
+
+export const setCreateHealthIGTRequestStatus = (state, { status }) =>
+  state.merge({ createHealthIGTRequestStatus: status })
 
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_CUSTOMERS_NAME]: getCustomersName,
@@ -214,4 +224,6 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.STORE_INSURED_CUSTOMER]: storeInsuredCustomer,
   [Types.CREATE_IGT]: createIGT,
   [Types.SET_CREATE_IGT_REQUEST_STATUS]: setCreateIGTRequestStatus,
+  [Types.CREATE_HEALTH_IGT]: createHealthIGT,
+  [Types.SET_CREATE_HEALTH_IGT_REQUEST_STATUS]: setCreateHealthIGTRequestStatus,
 });

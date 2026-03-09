@@ -49,8 +49,8 @@ export const formatDecimals = (number, formatValue = true) => {
 
     return formatValue
       ? finalResult.toLocaleString('en-IN', {
-          minimumSignificantDigits: significantDigits,
-        })
+        minimumSignificantDigits: significantDigits,
+      })
       : finalResult;
   } catch (error) {
     return '-';
@@ -89,15 +89,22 @@ export const truncateFileName = (name, maxLength = 25) => {
 };
 
 export const isImageFile = document => {
-  if (!document || !document.type) return false;
-  return document.type.startsWith('image/');
+  if (!document) return false;
+  const type = typeof document === 'string' ? document : (document.type || '');
+  const uri = typeof document === 'string' ? document : (document.uri || '');
+  return type.toLowerCase().startsWith('image/') || uri.toLowerCase().startsWith('data:image/');
 };
 
 export const isPdfFile = document => {
   if (!document) return false;
-  const name = document.name?.toLowerCase() || '';
-  const type = document.type?.toLowerCase() || '';
-  return type.includes('pdf') || name.endsWith('.pdf');
+  const type = typeof document === 'string' ? document : (document.type || '');
+  const uri = typeof document === 'string' ? document : (document.uri || '');
+  const name = typeof document === 'object' ? (document.name || '') : '';
+
+  return type.toLowerCase().includes('pdf') ||
+    name.toLowerCase().endsWith('.pdf') ||
+    uri.toLowerCase().startsWith('data:application/pdf') ||
+    uri.toLowerCase().endsWith('.pdf');
 };
 
 export const lowerCase = value => {

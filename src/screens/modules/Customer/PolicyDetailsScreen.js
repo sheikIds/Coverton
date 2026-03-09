@@ -151,6 +151,7 @@ const PolicyDetailsScreen = props => {
     });
   }, [secondLevelData, searchText]);
   
+  console.log({filteredPolicies})
 
   /** ---------- RENDERERS ---------- */
 

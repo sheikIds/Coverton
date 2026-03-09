@@ -23,6 +23,7 @@ import {
   getInsuredCustomer,
   createCustomer,
   createIGT,
+  createHealthIGT,
 } from './CustomerSaga';
 import {
   createQuotation,
@@ -55,6 +56,7 @@ export default function* root() {
     takeLatest(CustomerTypes.GET_INSURED_CUSTOMER, getInsuredCustomer),
     takeLatest(CustomerTypes.CREATE_CUSTOMER, createCustomer),
     takeLatest(CustomerTypes.CREATE_IGT, createIGT),
+    takeLatest(CustomerTypes.CREATE_HEALTH_IGT, createHealthIGT),
 
     takeLatest(QuotationTypes.CREATE_QUOTATION, createQuotation),
     takeLatest(QuotationTypes.GET_QUOTATIONS, getQuotations),

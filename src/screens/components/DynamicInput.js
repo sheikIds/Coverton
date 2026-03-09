@@ -13,6 +13,7 @@ import MaterialDesignIcons from '@react-native-vector-icons/material-design-icon
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 
 import DocumentUploadField from '../components/DocumentUploadField';
+import DynamicDropdown from './DynamicDropdown';
 
 const DynamicInput = ({
   item,
@@ -23,7 +24,9 @@ const DynamicInput = ({
   onValueChange,
 }) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [error, setError] = useState('');
 
+  console.log({ item })
   const formatDate = date => {
     if (!date) return '';
     const day = date.getDate().toString().padStart(2, '0');
@@ -57,95 +60,171 @@ const DynamicInput = ({
         ),
       );
       // Store ISO string in value
-      onValueChange(utcDate.toISOString(), item);
+      onValueChange(utcDate.toISOString(), item, '');
     }
   };
 
-  const docKey = item?.fieldName?.split(' ')?.join('').toLowerCase();
-  const documentForField = documents?.[docKey];
+  const docKey = item?.id || item?.fieldName?.split(' ')?.join('').toLowerCase();
+  const documentForField = documents?.[docKey] || (item?.value && typeof item?.value === 'string' && item?.value.startsWith('data:') ? {
+    uri: item?.value,
+    name: item?.label || 'Document',
+    type: item?.value.split(';')[0]?.split(':')[1] || 'image/jpeg',
+  } : null);
 
 
   return (
     <View>
       {item?.inputTypeId === INPUT_TYPE_ID.TEXT_INPUT ? (
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.textInput}
-            value={item?.value ?? ''}
-            onChangeText={text => {
-              onValueChange(text, item);
-            }}
-            placeholder={`Enter ${(item?.label || '').toLowerCase()}...`}
-            placeholderTextColor="#9CA3AF"
-            keyboardType="default"
-            maxLength={100}
-          />
+        <View>
+          <View style={[styles.inputContainer, (error || item?.error) && styles.errorBorder]}>
+            <TextInput
+              style={styles.textInput}
+              value={item?.value ?? ''}
+              onChangeText={text => {
+                onValueChange(text, item);
+              }}
+              placeholder={`Enter ${(item?.label || '').toLowerCase()}...`}
+              placeholderTextColor="#9CA3AF"
+              keyboardType="default"
+              maxLength={100}
+            />
+          </View>
+          {(error || item?.error) ? <Text style={styles.errorText}>{error || item?.error}</Text> : null}
         </View>
       ) : null}
 
       {item?.inputTypeId === INPUT_TYPE_ID.NUMBER ? (
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.textInput}
-            value={item?.value ?? ''}
-            onChangeText={text => {
-              onValueChange(text, item);
-            }}
-            placeholder={`Enter ${(item?.label || '').toLowerCase()}...`}
-            placeholderTextColor="#9CA3AF"
-            keyboardType="numeric"
-            maxLength={12}
-          />
+        <View>
+          <View
+            style={[styles.inputContainer, (error || item?.error) && styles.errorBorder]}
+          >
+            <TextInput
+              style={styles.textInput}
+              value={item?.value ?? ''}
+              keyboardType="numeric"
+              maxLength={12}
+              placeholder={`Enter ${(item?.label || '').toLowerCase()}...`}
+              placeholderTextColor="#9CA3AF"
+              onChangeText={text => {
+                // Allow only numbers
+                if (!/^\d*$/.test(text)) return;
+
+                const num = Number(text);
+                const min = item?.min;
+                const max = item?.max;
+
+                if (text === '') {
+                  setError('');
+                  onValueChange('', item, '');
+                  return;
+                }
+
+                let errorMsg = '';
+                if (min !== undefined && num < min) {
+                  errorMsg = `Minimum allowed is ${min}`;
+                } else if (max !== undefined && num > max) {
+                  errorMsg = `Maximum allowed is ${max}`;
+                }
+
+                setError(errorMsg);
+                onValueChange(text, item, errorMsg);
+              }}
+              onBlur={() => {
+                const num = Number(item?.value);
+                const min = item?.min ?? item?.minValue;
+                const max = item?.max ?? item?.maxValue;
+                let errorMsg = '';
+
+                if (item?.value !== '' && min !== undefined && num < min) {
+                  errorMsg = `Minimum allowed is ${min}`;
+                } else if (item?.value !== '' && max !== undefined && num > max) {
+                  errorMsg = `Maximum allowed is ${max}`;
+                }
+
+                setError(errorMsg);
+                onValueChange(item?.value, item, errorMsg);
+              }}
+            />
+          </View>
+
+          {(error || item?.error) ? <Text style={styles.errorText}>{error || item?.error}</Text> : null}
         </View>
       ) : null}
 
       {item?.inputTypeId === INPUT_TYPE_ID.DATE ? (
-        <TouchableOpacity
-          style={styles.inputContainer}
-          onPress={() => setShowDatePicker(true)}
-          activeOpacity={0.7}
-        >
-          <View style={styles.datePickerContent}>
-            <Text
-              style={[styles.textInput, !item?.value && { color: '#9CA3AF' }]}
-            >
-              {item?.value
-                ? formatDate(new Date(item?.value))
-                : 'Select expected close date'}
-            </Text>
-            <MaterialDesignIcons
-              name="calendar-month"
-              size={20}
-              color="#6B7280"
-            />
-          </View>
-        </TouchableOpacity>
+        <View>
+          <TouchableOpacity
+            style={[styles.inputContainer, (error || item?.error) && styles.errorBorder]}
+            onPress={() => setShowDatePicker(true)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.datePickerContent}>
+              <Text
+                style={[styles.textInput, !item?.value && { color: '#9CA3AF' }]}
+              >
+                {item?.value
+                  ? formatDate(new Date(item?.value))
+                  : 'Select expected close date'}
+              </Text>
+              <MaterialDesignIcons
+                name="calendar-month"
+                size={20}
+                color="#6B7280"
+              />
+            </View>
+          </TouchableOpacity>
+          {(error || item?.error) ? <Text style={styles.errorText}>{error || item?.error}</Text> : null}
+        </View>
       ) : null}
 
       {item?.inputTypeId === INPUT_TYPE_ID.FILE_TYPE ? (
-        <DocumentUploadField
-          label={item?.fieldName}
-          docType={docKey}
-          document={documentForField}
-          onPickDocument={(docTypeParam) =>
-            handleDocumentPick(docTypeParam || docKey, item)
-          }
-          onRemoveDocument={(docTypeParam) =>
-            onRemoveDocument(docTypeParam || docKey, item)
-          }
-          onViewDocument={onViewDocument}
-        />
+        <View>
+          <View style={(error || item?.error) && styles.errorBorderDoc}>
+            <DocumentUploadField
+              label={item?.fieldName}
+              docType={docKey}
+              document={documentForField}
+              onPickDocument={docTypeParam =>
+                handleDocumentPick(docTypeParam || docKey, item)
+              }
+              onRemoveDocument={docTypeParam =>
+                onRemoveDocument(docTypeParam || docKey, item)
+              }
+              onViewDocument={onViewDocument}
+            />
+          </View>
+          {(error || item?.error) ? <Text style={styles.errorText}>{error || item?.error}</Text> : null}
+        </View>
+      ) : null}
+      {item?.inputTypeId === INPUT_TYPE_ID.SINGLE_SELECT_DROPDOWN ? (
+        <View>
+          <DynamicDropdown
+            placeholder={`Select ${item?.label || ''}`}
+            dropdownData={item?.options || []}
+            labelField="label"
+            valueField="id"
+            selectedOption={item.value}
+            onSelect={option => {
+              onValueChange(option?.id, item, '');
+            }}
+            field=""
+            showLabel={false}
+            propContainerStyle={[styles.inputContainer, (error || item?.error) && styles.errorBorder]}
+            propPlaceholderStyle={{ color: '#9CA3AF' }}
+          />
+          {(error || item?.error) ? <Text style={styles.errorText}>{error || item?.error}</Text> : null}
+        </View>
       ) : null}
 
       {item?.inputTypeId === INPUT_TYPE_ID.SWITCH ? (
         <View style={styles.switchRow}>
           <Switch
-            value={item?.value === "1"} 
-            onValueChange={val =>{
-              onValueChange(val ? "1" : "0", item);
+            value={item?.value === '1'}
+            onValueChange={val => {
+              onValueChange(val ? '1' : '0', item, '');
             }}
-            thumbColor={item?.value === "1" ? COLOR.PRIMARY_COLOR : '#f4f3f4'}
-                  trackColor={{ false: '#767577', true: COLOR.PRIMARY_COLOR + '80' }}
+            thumbColor={item?.value === '1' ? COLOR.PRIMARY_COLOR : '#f4f3f4'}
+            trackColor={{ false: '#767577', true: COLOR.PRIMARY_COLOR + '80' }}
           />
         </View>
       ) : null}
@@ -237,5 +316,21 @@ const styles = StyleSheet.create({
   switchRow: {
     marginTop: 8,
     alignItems: 'flex-start',
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 12,
+    marginTop: 6,
+    marginLeft: 4,
+    fontFamily: 'Poppins-Regular',
+  },
+  errorBorder: {
+    borderColor: '#EF4444',
+    borderWidth: 1.5,
+  },
+  errorBorderDoc: {
+    borderColor: '#EF4444',
+    borderWidth: 1.5,
+    borderRadius: 12,
   },
 });
