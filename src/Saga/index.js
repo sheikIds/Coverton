@@ -28,7 +28,10 @@ import {
 import {
   createQuotation,
   getQuotations,
-  getQuotationById
+  getQuotationById,
+  getPreferredQuotation,
+  getQuotationConfirm,
+  confirmQuotation,
 } from './QuotationSaga';
 import {
   getPolicy
@@ -61,6 +64,9 @@ export default function* root() {
     takeLatest(QuotationTypes.CREATE_QUOTATION, createQuotation),
     takeLatest(QuotationTypes.GET_QUOTATIONS, getQuotations),
     takeLatest(QuotationTypes.GET_QUOTATION_BY_ID, getQuotationById),
+    takeLatest(QuotationTypes.GET_PREFERRED_QUOTATION, getPreferredQuotation),
+    takeLatest(QuotationTypes.GET_QUOTATION_CONFIRM, getQuotationConfirm),
+    takeLatest(QuotationTypes.CONFIRM_QUOTATION, confirmQuotation),
 
     takeLatest(PolicyTypes.GET_POLICY, getPolicy),
 

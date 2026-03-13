@@ -31,6 +31,9 @@ export const REFRESH_TOKEN = BASE + 'Login/Refresh-Token'
 export const CREATE_QUOTATION = BASE + 'Quotation'
 export const GET_QUOTATION = BASE + 'Quotation/get-quotation'
 export const GET_QUOTATION_BY_ID = BASE + 'Quotation/view-quotation'
+export const GET_QUOTATION_MANAGEMENT = BASE + 'BOI/quotationmanagement'
+export const GET_PREFERRED_QUOTATION = BASE + 'BOI/preferredquotation'
+export const CONFIRM_QUOTATION = BASE + 'BOI/confirmquotation'
 
 // Policy Endpoints
 export const GET_POLICY = BASE + 'Policy/Dashboard'

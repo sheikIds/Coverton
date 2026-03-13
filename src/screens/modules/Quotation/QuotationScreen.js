@@ -37,9 +37,13 @@ const QuotationScreen = () => {
     state => state.quotation?.getQuotationsRequestStatus ?? 'INITIAL',
   );
 
+  const quotationConfirm = useSelector(state => state.quotation?.quotationConfirm ?? []);
+  console.log('quotationConfirm', { quotationConfirm });
+
   useFocusEffect(
     useCallback(() => {
       dispatch(QuotationActions.getQuotations());
+      dispatch(QuotationActions.getQuotationConfirm());
 
       return () => {
         setSearchText('');
@@ -64,7 +68,7 @@ const QuotationScreen = () => {
 
   // Memoized filtered data based on searchText and selectedFilter
   const filteredQuotations = useMemo(() => {
-    const q = quotation ?? [];
+    const q = quotationConfirm ?? [];
     const search = (searchText ?? '').trim().toLowerCase();
 
     const matchesFilter = item => {
@@ -118,7 +122,7 @@ const QuotationScreen = () => {
         setValue={setSearchText}
       />
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+      {/* <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.badgeRow}>
           <TouchableOpacity
             activeOpacity={0.7}
@@ -160,7 +164,7 @@ const QuotationScreen = () => {
             <Text style={styles.issuedText}>{`Issued: ${issuedQuotCount}`}</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </ScrollView> */}
     </View>
   );
 

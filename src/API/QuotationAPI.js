@@ -31,7 +31,55 @@ export const getQuotationById = async ({ quotationId }) => {
 
     return response.data;
   } catch (error) {
-    console.error('API Error:', error?.response?.data || error.message);
+    // console.error('API Error:', error?.response?.data || error.message);
     throw error?.response?.data || error;
   }
 };
+
+export const getQuotationManagement = async ({ type }) => {
+  // const response = await apiClient.get(`${Endpoints.GET_QUOTATION_MANAGEMENT}?type=${type}`);
+  // return response.data;
+  try {
+    const response = await api.get(Endpoints.GET_QUOTATION_MANAGEMENT, {
+      params: { type: type },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error?.response?.data || error);
+    throw error?.response?.data || error;
+  }
+};
+
+export const getPreferredQuotation = async ({ prospectId }) => {
+  // const response = await apiClient.get(
+  //     `${Endpoints.GET_PREFERRED_QUOTATION}?`prospectId`=${prospectId}`
+  // );
+  // return response.data;
+  console.log({ APIGETPRE: prospectId })
+  try {
+    const response = await api.get(Endpoints.GET_PREFERRED_QUOTATION, {
+      params: { prospectId: prospectId },
+    });
+
+    return response.data;
+  }
+  catch (error) {
+    // console.log('API Error:', error?.response?.data || error.message);
+    // throw error?.response?.data || error;
+  }
+};
+
+export const confirmQuotation = async ({ quotationData }) => {
+  // const response = await apiClient.post(Endpoints.CONFIRM_QUOTATION, quotationData);
+  // return response.data;
+  try {
+    const response = await api.post(Endpoints.CONFIRM_QUOTATION, quotationData);
+
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error?.response?.data || error);
+    throw error?.response?.data || error;
+  }
+};
+

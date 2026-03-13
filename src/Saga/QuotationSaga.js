@@ -40,7 +40,6 @@ export function* getQuotations() {
       put(QuotationActions.storeQuotations(quotations)),
     ]);
   } catch (err) {
-    console.error('getCustomersName saga error', err);
     yield put(QuotationActions.setQuotationsRequestStatus(RequestStatus.ERROR));
   }
 }
@@ -64,5 +63,61 @@ export function* getQuotationById({ quotationId }) {
     yield put(
       QuotationActions.setQuotationByIdRequestStatus(RequestStatus.ERROR),
     );
+  }
+}
+export function* getPreferredQuotation({ prospectId }) {
+  // try {
+  //   const response = yield call(QuotationAPI.getPreferredQuotation, { prospectId });
+  //   console.log({ PREFERREDSaga_Response: response })
+  //   if (response?.err) {
+  //     yield put(QuotationActions.setGetPreferredQuotationRequestStatus(RequestStatus.ERROR));
+  //     return;
+  //   }
+  //   const preferredQuotation = response.data ?? response ?? [];
+  //   yield put(QuotationActions.storeGetPreferredQuotations(preferredQuotation));
+  //   yield put(QuotationActions.setGetPreferredQuotationRequestStatus(RequestStatus.OK));
+  // } catch (e) {
+  //   yield put(QuotationActions.setGetPreferredQuotationRequestStatus(RequestStatus.ERROR));
+  // }
+  const response = yield call(QuotationAPI.getPreferredQuotation, { prospectId });
+
+  if (response.err) {
+    yield put(QuotationActions.setGetPreferredQuotationRequestStatus(RequestStatus.ERROR));
+  } else {
+    let preferredQuotation = response.data ?? response ?? [];
+
+    yield all([
+      yield put(QuotationActions.storeGetPreferredQuotations(preferredQuotation)),
+      yield put(QuotationActions.setGetPreferredQuotationRequestStatus(RequestStatus.OK))
+    ])
+  }
+}
+
+export function* getQuotationConfirm() {
+  try {
+    const response = yield call(QuotationAPI.getQuotationManagement, { type: 2 });
+    if (response?.err) {
+      yield put(QuotationActions.setGetQuotationConfirmRequestStatus(RequestStatus.ERROR));
+      return;
+    }
+    const quotationConfirm = response.data ?? response ?? [];
+    yield put(QuotationActions.storeQuotationConfirm(quotationConfirm));
+    yield put(QuotationActions.setGetQuotationConfirmRequestStatus(RequestStatus.OK));
+  } catch (e) {
+    yield put(QuotationActions.setGetQuotationConfirmRequestStatus(RequestStatus.ERROR));
+  }
+}
+
+export function* confirmQuotation({ quotationData }) {
+  try {
+    const response = yield call(QuotationAPI.confirmQuotation, { quotationData });
+    if (response?.err) {
+      yield put(QuotationActions.setConfirmQuotationRequestStatus(RequestStatus.ERROR));
+      return;
+    }
+    yield put(QuotationActions.setConfirmQuotationRequestStatus(RequestStatus.OK));
+    yield put(QuotationActions.getQuotationConfirm());
+  } catch (e) {
+    yield put(QuotationActions.setConfirmQuotationRequestStatus(RequestStatus.ERROR));
   }
 }

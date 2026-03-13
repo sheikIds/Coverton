@@ -8,6 +8,12 @@ export const INITIAL_STATE = Immutable({
   getQuotationsRequestStatus: RequestStatus.INITIAL,
   quotationById: [],
   getQuotationByIdRequestStatus: RequestStatus.INITIAL,
+  preferredQuotations: [],
+  preferredQuotationRequestStatus: RequestStatus.INITIAL,
+  quotationConfirm: [],
+  quotationConfirmRequestStatus: RequestStatus.INITIAL,
+  confirmQuotationRequestStatus: RequestStatus.INITIAL,
+
 });
 
 const { Types, Creators } = createActions({
@@ -19,6 +25,14 @@ const { Types, Creators } = createActions({
   getQuotationById: ['quotationId'],
   setQuotationByIdRequestStatus: ['status'],
   storeQuotationById: ['quotation'],
+  getPreferredQuotation: ['prospectId'],
+  setGetPreferredQuotationRequestStatus: ['status'],
+  storeGetPreferredQuotations: ['preferredQuotations'],
+  getQuotationConfirm: [],
+  setGetQuotationConfirmRequestStatus: ['status'],
+  storeQuotationConfirm: ['data'],
+  confirmQuotation: ['quotationData'],
+  setConfirmQuotationRequestStatus: ['status'],
 });
 
 export const QuotationTypes = Types;
@@ -70,6 +84,43 @@ export const storeQuotationById = (state, { quotation }) => {
   });
 };
 
+export const getPreferredQuotation = (state, { prospectId }) =>
+  state.merge({
+    preferredQuotationRequestStatus: RequestStatus.INPROGRESS,
+  });
+
+export const setGetPreferredQuotationRequestStatus = (state, { status }) =>
+  state.merge({ preferredQuotationRequestStatus: status });
+
+export const storeGetPreferredQuotations = (state, { preferredQuotations }) =>
+  state.merge({
+    preferredQuotations: preferredQuotations || [],
+    preferredQuotationRequestStatus: RequestStatus.OK,
+  });
+
+export const getQuotationConfirm = (state) =>
+  state.merge({
+    getQuotationConfirmRequestStatus: RequestStatus.INPROGRESS,
+  });
+
+export const setGetQuotationConfirmRequestStatus = (state, { status }) =>
+  state.merge({ getQuotationConfirmRequestStatus: status });
+
+export const storeQuotationConfirm = (state, { data }) =>
+  state.merge({
+    quotationConfirm: data || [],
+    getQuotationConfirmRequestStatus: RequestStatus.OK,
+  });
+
+export const confirmQuotation = (state, { quotationData }) =>
+  state.merge({
+    confirmQuotationRequestStatus: RequestStatus.INPROGRESS,
+  });
+
+export const setConfirmQuotationRequestStatus = (state, { status }) =>
+  state.merge({ confirmQuotationRequestStatus: status });
+
+
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.CREATE_QUOTATION]: createQuotation,
   [Types.SET_QUOTATION_REQUEST_STATUS]: setQuotationRequestStatus,
@@ -79,4 +130,12 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_QUOTATION_BY_ID]: getQuotationById,
   [Types.SET_QUOTATION_BY_ID_REQUEST_STATUS]: setQuotationByIdRequestStatus,
   [Types.STORE_QUOTATION_BY_ID]: storeQuotationById,
+  [Types.GET_PREFERRED_QUOTATION]: getPreferredQuotation,
+  [Types.SET_GET_PREFERRED_QUOTATION_REQUEST_STATUS]: setGetPreferredQuotationRequestStatus,
+  [Types.STORE_GET_PREFERRED_QUOTATIONS]: storeGetPreferredQuotations,
+  [Types.GET_QUOTATION_CONFIRM]: getQuotationConfirm,
+  [Types.SET_GET_QUOTATION_CONFIRM_REQUEST_STATUS]: setGetQuotationConfirmRequestStatus,
+  [Types.STORE_QUOTATION_CONFIRM]: storeQuotationConfirm,
+  [Types.CONFIRM_QUOTATION]: confirmQuotation,
+  [Types.SET_CONFIRM_QUOTATION_REQUEST_STATUS]: setConfirmQuotationRequestStatus,
 });

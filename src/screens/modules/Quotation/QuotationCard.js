@@ -3,25 +3,37 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import { COLOR, QUOTATION_STATUS } from '../../../utils/constants';
 const QuotationCard = ({ data, onPress }) => {
+  //   {
+  //     "prospectId": "PRO2603-06",
+  //     "quotationId": "QUO2603-06",
+  //     "businessProvider": "SriDevi",
+  //     "customer": "Hassan",
+  //     "productCategory": "Motor - Private Car",
+  //     "timeByWhen": "2026-03-19T00:00:00",
+  //     "status": "Hot",
+  //     "expectedPremium": 3500,
+  //     "assginedTo": "Sheik"
+  // }
   const {
-    id,
-    customerName,
-    insurerName,
-    producType,
+    quotationId: id,
+    customer: customerName,
+    businessProvider: insurerName,
+    productCategory: producType,
     categoryType,
-    quotedAmount,
+    expectedPremium: quotedAmount,
     status,
+    timeByWhen
   } = data;
 
   const statusColor =
-    status === 'approved'
-      ? COLOR.APPROVED_COLOR
-      : status === 'rejected'
-      ? COLOR.REJECTED_COLOR
-      : COLOR.PENDING_COLOR;
+    status === 'Hot'
+      ? COLOR.HOT_LEADS_COLOR
+      : status === 'Warm'
+        ? COLOR.WARM_LEADS_COLOR
+        : COLOR.COLD_LEADS_COLOR;
 
   return (
-    <TouchableOpacity activeOpacity={0.8} style={styles.card} onPress={()=>{onPress(data)}}>
+    <TouchableOpacity activeOpacity={0.8} style={styles.card} onPress={() => { onPress(data) }}>
       {/* Header: Customer + Status */}
       <View style={styles.headerRow}>
         <View style={styles.titleRow}>
@@ -51,7 +63,7 @@ const QuotationCard = ({ data, onPress }) => {
           ]}
         >
           <Text style={[styles.statusText, { color: statusColor }]}>
-            {status?.toUpperCase() ? QUOTATION_STATUS[status?.toUpperCase()] : 'N/A'}
+            {status?.toUpperCase()}
           </Text>
         </View>
       </View>
@@ -68,7 +80,7 @@ const QuotationCard = ({ data, onPress }) => {
         <View style={styles.textGroup}>
           <Text style={styles.label}>Product Type</Text>
           <Text style={styles.value}>
-            {producType} {categoryType ? `• ${categoryType}` : ''}
+            {producType}
           </Text>
         </View>
       </View>
