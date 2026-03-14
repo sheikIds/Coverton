@@ -24,6 +24,7 @@ export const COLOR = {
   PENDING_COLOR: '#facc15',
   APPROVED_COLOR: '#22c55e',
   REJECTED_COLOR: '#ef4444',
+  PURPLE_COLOR: '#ae72b8ff',
 }
 export const FONTS = {
   // FONT_REGULAR: 'Oswald-Regular',
@@ -140,5 +141,79 @@ export const QUOTATION_STATUS = {
   REJECTED: 'Rejected'
 }
 
-export const HEALTH_CATEGORY_CODE = [ 10, 11]
+export const HEALTH_CATEGORY_CODE = [10, 11]
 export const GENERAL_HEALTH_CATEGORY_CODE = [9, 10, 11]
+
+export const PRODUCT_IDS = {
+  MOTOR: 2,
+  HEALTH: 4,
+};
+
+export const CATEGORY_IDS = {
+  INDIVIDUAL: 6,
+  FLOATER: 7,
+};
+
+export const RELATIONSHIPS = [
+  { id: 'self', label: 'Self' },
+  { id: 'spouse', label: 'Spouse' },
+  { id: 'father', label: 'Father' },
+  { id: 'mother', label: 'Mother' },
+  { id: 'son', label: 'Son' },
+  { id: 'daughter', label: 'Daughter' },
+  { id: 'brother', label: 'Brother' },
+  { id: 'sister', label: 'Sister' },
+  { id: 'fatherInLaw', label: 'Father-in-Law' },
+  { id: 'motherInLaw', label: 'Mother-in-Law' },
+];
+
+export const CONDITIONAL_FORM_SECTIONS = [
+  {
+    productId: PRODUCT_IDS.HEALTH,
+    categoryId: CATEGORY_IDS.INDIVIDUAL,
+    sectionTitle: 'Health Individual Information',
+    fields: [
+      {
+        type: 'dropdown',
+        name: 'relationship',
+        label: 'Relationship',
+        data: RELATIONSHIPS,
+        defaultValue: RELATIONSHIPS[0],
+        editable: false,
+      },
+      {
+        type: 'input',
+        name: 'age',
+        label: 'Age *',
+        required: true,
+        keyboardType: 'numeric',
+        placeholder: 'Enter age',
+      },
+    ],
+  },
+];
+
+// ─── Health Floater constants ──────────────────────────────────────────────────
+
+export const ADULT_RELATIONSHIPS = RELATIONSHIPS.filter(
+  r => !['son', 'daughter'].includes(r.id),
+);
+
+export const CHILD_RELATIONSHIPS = RELATIONSHIPS.filter(r =>
+  ['son', 'daughter'].includes(r.id),
+);
+
+/** Dropdown options: how many adults (1–6) */
+export const ADULT_COUNT_OPTIONS = [1, 2, 3, 4, 5, 6].map(n => ({
+  id: n,
+  label: String(n),
+  value: String(n),
+}));
+
+/** Dropdown options: how many children (0–4) */
+export const CHILDREN_COUNT_OPTIONS = [0, 1, 2, 3, 4].map(n => ({
+  id: n,
+  label: String(n),
+  value: String(n),
+}));
+

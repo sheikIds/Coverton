@@ -24,7 +24,8 @@ const DynamicDropdown = (props) => {
     propPlaceholderStyle,
     propOptionTextStyle,
     disabled = false,
-    isSearch = false
+    isSearch = false,
+    customRenderItem
   } = props;
 
   const [isFocus, setIsFocus] = useState(false);
@@ -57,6 +58,9 @@ const DynamicDropdown = (props) => {
   }, [selectedOption, isFocus, renderLabelTitle, labelStyle]);
 
   const renderItem = useCallback((item) => {
+    if (customRenderItem) {
+      return customRenderItem(item);
+    }
     return (
       <View style={[styles.renderItemContainer, propRenderItemContainerStyle]}>
         <Text numberOfLines={1} style={[propOptionTextStyle]}>
@@ -64,7 +68,7 @@ const DynamicDropdown = (props) => {
         </Text>
       </View>
     );
-  }, [propRenderItemContainerStyle, propOptionTextStyle, labelField]);
+  }, [propRenderItemContainerStyle, propOptionTextStyle, labelField, customRenderItem]);
 
   const handleChange = useCallback((item) => {
     if (field === 'testCode') {

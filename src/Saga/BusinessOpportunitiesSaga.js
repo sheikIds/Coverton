@@ -22,7 +22,7 @@ export function* getProducts() {
   }
 }
 
-export function* getCategories () {
+export function* getCategories() {
   try {
     const response = yield call(BusinessOpportunitiesAPI.getCaterogies)
     if (response?.err) {
@@ -40,9 +40,27 @@ export function* getCategories () {
   }
 }
 
-export function* getLeads () {
+export function* getInsuranceCompanies({ categoryId }) {
   try {
-    const response = yield call(BusinessOpportunitiesAPI.getLeads)
+    const response = yield call(BusinessOpportunitiesAPI.getInsuranceCompanies,  categoryId)
+    if (response?.err) {
+      yield put(BusinessOpportunitiesActions.setInsuranceCompaniesRequestStatus(RequestStatus.ERROR))
+      return
+    }
+    const insuranceCompanies = response.data ?? response ?? []
+    yield all([
+      put(BusinessOpportunitiesActions.setInsuranceCompaniesRequestStatus(RequestStatus.OK)),
+      put(BusinessOpportunitiesActions.storeInsuranceCompanies(insuranceCompanies))
+    ])
+  } catch (e) {
+    console.error('getInsuranceCompanies saga error', e)
+    yield put(BusinessOpportunitiesActions.setInsuranceCompaniesRequestStatus(RequestStatus.ERROR))
+  }
+}
+
+export function* getLeads({ params }) {
+  try {
+    const response = yield call(BusinessOpportunitiesAPI.getLeads, params)
     if (response?.err) {
       yield put(BusinessOpportunitiesActions.setLeadsRequestStatus(RequestStatus.ERROR))
       return
@@ -58,10 +76,10 @@ export function* getLeads () {
   }
 }
 
-export function* createLead ({ leadData }) {
+export function* createLead({ leadData }) {
   try {
-    const response = yield call(BusinessOpportunitiesAPI.createLead,{ leadData })
-if (response?.err) {
+    const response = yield call(BusinessOpportunitiesAPI.createLead, { leadData })
+    if (response?.err) {
       yield put(BusinessOpportunitiesActions.setCreateLeadRequestStatus(RequestStatus.ERROR))
       return
     }
@@ -75,10 +93,10 @@ if (response?.err) {
   }
 }
 
-export function* updateLead ({ leadData, prospectId }) {
+export function* updateLead({ leadData, prospectId }) {
   try {
-    const response = yield call(BusinessOpportunitiesAPI.updateLead,{ leadData, prospectId })
-if (response?.err) {
+    const response = yield call(BusinessOpportunitiesAPI.updateLead, { leadData, prospectId })
+    if (response?.err) {
       yield put(BusinessOpportunitiesActions.setUpdateLeadRequestStatus(RequestStatus.ERROR))
       return
     }
@@ -89,5 +107,19 @@ if (response?.err) {
   } catch (e) {
     console.error('updateLead saga error', e)
     yield put(BusinessOpportunitiesActions.setUpdateLeadRequestStatus(RequestStatus.ERROR))
+  }
+}
+
+export function* quotationRequest({ prospectId }) {
+  try {
+    const response = yield call(BusinessOpportunitiesAPI.quotationRequest, { prospectId })
+    if (response?.err) {
+      yield put(BusinessOpportunitiesActions.setQuotationRequestStatus(RequestStatus.ERROR))
+      return
+    }
+    yield put(BusinessOpportunitiesActions.setQuotationRequestStatus(RequestStatus.OK))
+  } catch (e) {
+    console.error('quotationRequest saga error', e)
+    yield put(BusinessOpportunitiesActions.setQuotationRequestStatus(RequestStatus.ERROR))
   }
 }

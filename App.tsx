@@ -23,8 +23,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { COLOR, FONTS } from './src/utils/constants';
 import DashboardScreen from './src/screens/modules/Dashboard/DashboardScreen';
 import BusinessScreen from './src/screens/modules/Business/BusinessScreen';
-import CustomerScreen from './src/screens/modules/Customer/CustomerScreen';
-import PolicyDetailsScreen from './src/screens/modules/Customer/PolicyDetailsScreen';
+// import CustomerScreen from './src/screens/modules/Customer/CustomerScreen';
+// import PolicyDetailsScreen from './src/screens/modules/Customer/PolicyDetailsScreen';
 import QuotationScreen from './src/screens/modules/Quotation/QuotationScreen';
 import SignInScreen from './src/screens/modules/SignIn/SignInScreen';
 import SplashScreen from './src/screens/modules/SplashScreen';
@@ -67,28 +67,28 @@ const BusinessStack = () => (
   </Stack.Navigator>
 );
 
-const CustomerStack = () => {
-  const { setHeaderTitle } = useHeader();
+// const CustomerStack = () => {
+//   const { setHeaderTitle } = useHeader();
 
-  return (
-    <Stack.Navigator
-      screenOptions={{ headerShown: false }}
-      screenListeners={{
-        focus: (e) => {
-          // Update header based on which screen is focused
-          if (e.target?.startsWith('PolicyDetails')) {
-            setHeaderTitle('Policy Details');
-          } else if (e.target?.startsWith('CustomerMain')) {
-            setHeaderTitle('Customer');
-          }
-        },
-      }}
-    >
-      <Stack.Screen name="CustomerMain" component={CustomerScreen} />
-      <Stack.Screen name="PolicyDetails" component={PolicyDetailsScreen} />
-    </Stack.Navigator>
-  );
-};
+//   return (
+//     <Stack.Navigator
+//       screenOptions={{ headerShown: false }}
+//       screenListeners={{
+//         focus: (e) => {
+//           // Update header based on which screen is focused
+//           if (e.target?.startsWith('PolicyDetails')) {
+//             setHeaderTitle('Policy Details');
+//           } else if (e.target?.startsWith('CustomerMain')) {
+//             setHeaderTitle('Customer');
+//           }
+//         },
+//       }}
+//     >
+//       <Stack.Screen name="CustomerMain" component={CustomerScreen} />
+//       <Stack.Screen name="PolicyDetails" component={PolicyDetailsScreen} />
+//     </Stack.Navigator>
+//   );
+// };
 
 const QuotationStack = () => (
   <Stack.Navigator screenOptions={{ headerShown: false }}>
@@ -161,11 +161,11 @@ const BottomTabs = () => {
         }}
       />
 
-      <Tab.Screen
+      {/* <Tab.Screen
         name="CustomerTab"
         component={CustomerStack}
         options={{
-          tabBarLabel: 'Customer',
+          tabBarLabel: 'Customer ddd',
           tabBarIcon: ({ color, size }) => (
             <MaterialDesignIcons name="account-multiple-outline" size={size || 24} color={color} />
           ),
@@ -184,7 +184,7 @@ const BottomTabs = () => {
             }
           },
         })}
-      />
+      /> */}
 
       <Tab.Screen
         name="QuotationTab"
@@ -214,7 +214,7 @@ const MainStack = () => {
 const drawerItems = [
   { label: 'Dashboard', icon: 'home-outline', tab: 'DashboardTab' },
   { label: 'Business', icon: 'bullseye', tab: 'BusinessTab' },
-  { label: 'Customer', icon: 'account-multiple-outline', tab: 'CustomerTab' },
+  // { label: 'Customer', icon: 'account-multiple-outline', tab: 'CustomerTab' },
   { label: 'Quotation', icon: 'currency-usd', tab: 'QuotationTab' },
   { label: 'Logout', icon: 'logout', tab: 'Logout' },
 ];
@@ -279,11 +279,8 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 
   const localImageSource = require('./src/assets/images/CovertonAppLogo.png');
 
-  const user = useSelector((state) => state?.auth?.user?.userName);
-
-  console.log({user})
-
-
+const user = useSelector((state: any) => state?.auth?.user?.userName);
+  console.log({ user })
 
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContent}>
@@ -296,7 +293,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
         </TouchableOpacity>
       </View>
       <View>
-        <Text numberOfLines={1}  style={styles.headerTitle}>Welcome! {`${user}`}</Text>
+        <Text numberOfLines={1} style={styles.headerTitle}>Welcome! {`${user}`}</Text>
       </View>
       {drawerItems.map(item => {
         if (item.tab === 'Logout') {
@@ -354,6 +351,19 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 };
 
 // ---------- Drawer navigator ----------
+const HeaderLeftButton = ({ navigation }: { navigation: any }) => (
+  <TouchableOpacity
+    onPress={() => navigation.openDrawer()}
+    style={styles.headerLeftButton}
+  >
+    <MaterialDesignIcons
+      name="menu-open"
+      size={26}
+      color={COLOR.WHITE_COLOR}
+    />
+  </TouchableOpacity>
+);
+
 const AppDrawer = () => {
   const [headerTitle, setHeaderTitle] = React.useState('Dashboard');
 
@@ -372,7 +382,10 @@ const AppDrawer = () => {
         <Drawer.Screen
           name="MainTabs"
           component={MainStack}
-          options={{ title: headerTitle }}
+          options={({ navigation }) => ({
+            title: headerTitle,
+            headerLeft: () => <HeaderLeftButton navigation={navigation} />,
+          })}
         />
       </Drawer.Navigator>
     </HeaderContext.Provider>
@@ -546,5 +559,9 @@ const styles = StyleSheet.create({
   logo: {
     width: '75%',
     height: 80,
-  }
+  },
+  headerLeftButton: {
+    marginLeft: 15,
+    marginRight: 10,
+  },
 });

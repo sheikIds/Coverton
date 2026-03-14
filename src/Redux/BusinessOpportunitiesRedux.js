@@ -9,8 +9,11 @@ export const INITIAL_STATE = Immutable({
   categories: [],
   getLeadsRequestStatus: RequestStatus.INITIAL,
   leads: [],
+  getInsuranceCompaniesRequestStatus: RequestStatus.INITIAL,
+  insuranceCompanies: [],
   createLeadRequestStatus: RequestStatus.INITIAL,
   updateLeadRequestStatus: RequestStatus.INITIAL,
+  quotationRequestStatus: RequestStatus.INITIAL,
 })
 
 const { Types, Creators } = createActions({
@@ -20,13 +23,18 @@ const { Types, Creators } = createActions({
   getCategories: [],
   setCategoriesRequestStatus: ['status'],
   storeCategories: ['categories'],
-  getLeads: [],
+  getLeads: ['params'],
   setLeadsRequestStatus: ['status'],
   storeLeads: ['leads'],
-  createLead: [ 'leadData' ],
+  getInsuranceCompanies: ['categoryId'],
+  setInsuranceCompaniesRequestStatus: ['status'],
+  storeInsuranceCompanies: ['insuranceCompanies'],
+  createLead: ['leadData'],
   setCreateLeadRequestStatus: ['status'],
-  updateLead: [ 'leadData', 'prospectId' ],
+  updateLead: ['leadData', 'prospectId'],
   setUpdateLeadRequestStatus: ['status'],
+  quotationRequest: ['prospectId'],
+  setQuotationRequestStatus: ['status'],
 })
 
 export const BusinessOpportunitiesTypes = Types
@@ -44,7 +52,6 @@ export const setProductsRequestStatus = (state, { status }) =>
   state.merge({ getProductsRequestStatus: status })
 
 export const storeProducts = (state, { products }) => {
-  console.log('Redux State------->',products )
   return state.merge({
     products: products?.responseData ?? products ?? [], // defensive: allow both raw or { responseData }
     getProductsRequestStatus: RequestStatus.SUCCESS,
@@ -83,19 +90,43 @@ export const storeLeads = (state, { leads }) => {
   })
 }
 
+export const getInsuranceCompanies = (state = INITIAL_STATE, { categoryId }) => {
+  return state.merge({
+    getInsuranceCompaniesRequestStatus: RequestStatus.INPROGRESS,
+    categoryId,
+  })
+}
+
+export const setInsuranceCompaniesRequestStatus = (state, { status }) =>
+  state.merge({ getInsuranceCompaniesRequestStatus: status })
+
+export const storeInsuranceCompanies = (state, { insuranceCompanies }) => {
+  return state.merge({
+    insuranceCompanies: insuranceCompanies?.responseData ?? insuranceCompanies ?? [],
+    getInsuranceCompaniesRequestStatus: RequestStatus.SUCCESS,
+  })
+}
+
 export const createLead = (state, { leadData }) => {
   return state.merge({ createLeadRequestStatus: RequestStatus.INPROGRESS })
 }
 
-export const setCreateLeadRequestStatus = (state,{ status }) =>
+export const setCreateLeadRequestStatus = (state, { status }) =>
   state.merge({ createLeadRequestStatus: status })
 
 export const updateLead = (state, { leadData, prospectId }) => {
   return state.merge({ updateLeadRequestStatus: RequestStatus.INPROGRESS })
 }
 
-export const setUpdateLeadRequestStatus = (state,{ status }) =>
+export const setUpdateLeadRequestStatus = (state, { status }) =>
   state.merge({ updateLeadRequestStatus: status })
+
+export const quotationRequest = (state, { prospectId }) => {
+  return state.merge({ quotationRequestStatus: RequestStatus.INPROGRESS })
+}
+
+export const setQuotationRequestStatus = (state, { status }) =>
+  state.merge({ quotationRequestStatus: status })
 
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_PRODUCTS]: getProducts,
@@ -107,8 +138,13 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_LEADS]: getLeads,
   [Types.SET_LEADS_REQUEST_STATUS]: setLeadsRequestStatus,
   [Types.STORE_LEADS]: storeLeads,
+  [Types.GET_INSURANCE_COMPANIES]: getInsuranceCompanies,
+  [Types.SET_INSURANCE_COMPANIES_REQUEST_STATUS]: setInsuranceCompaniesRequestStatus,
+  [Types.STORE_INSURANCE_COMPANIES]: storeInsuranceCompanies,
   [Types.CREATE_LEAD]: createLead,
   [Types.SET_CREATE_LEAD_REQUEST_STATUS]: setCreateLeadRequestStatus,
   [Types.UPDATE_LEAD]: updateLead,
   [Types.SET_UPDATE_LEAD_REQUEST_STATUS]: setUpdateLeadRequestStatus,
-})
+  [Types.QUOTATION_REQUEST]: quotationRequest,
+  [Types.SET_QUOTATION_REQUEST_STATUS]: setQuotationRequestStatus,
+})  

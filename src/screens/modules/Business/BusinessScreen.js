@@ -12,9 +12,11 @@ import React, { useCallback, useState, useRef, useEffect } from 'react';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import { SwipeListView } from 'react-native-swipe-list-view';
 import { useDispatch, useSelector } from 'react-redux';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
 import AddBusinessModal from './AddBusinessModal';
+import BusinessFilterModal from './BusinessFilterModal';
+import BusinessQuotationModal from './BusinessQuotationModal';
 import { COLOR, FONTS } from '../../../utils/constants';
 import BusinessLeadMangementCard from '../../components/BusinessLeadManagementCard';
 import { BusinessOpportunitiesActions } from '../../../Redux/BusinessOpportunitiesRedux';
@@ -45,27 +47,71 @@ const BusinessScreen = props => {
     timeByWhen: '',
     category: '',
   });
-  const [ convertCustomerData, setConvertCustomerData ] = useState({
-      selfId: 0,
-      customerId: "",
-      insuredName: "",
-      email: "",
-      phoneno: "",
-      dob: "",
-      address: "",
-      pan: "",
-      aadhar: "",
-      productId: 0,
-      categoryId: 0,
-      insuredCount: 0
-    });
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [modalFilters, setModalFilters] = useState({
+    year: 'ALL',
+    month: 'ALL',
+    status: 'ALL',
+    leadProvider: '',
+    customerID: '',
+    customerType: 'ALL',
+    businessType: 'ALL',
+  });
+  const [applyFiltersTrigger, setApplyFiltersTrigger] = useState(0);
+  const [isDebouncing, setIsDebouncing] = useState(false);
+
+  const [convertCustomerData, setConvertCustomerData] = useState({
+    selfId: 0,
+    customerId: "",
+    insuredName: "",
+    email: "",
+    phoneno: "",
+    dob: "",
+    address: "",
+    pan: "",
+    aadhar: "",
+    productId: 0,
+    categoryId: 0,
+    insuredCount: 0
+  });
   const [prospectId, setProspectId] = useState(null);
+  const [quotationModalVisible, setQuotationModalVisible] = useState(false);
 
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
+  const isFocused = useIsFocused();
 
-  const leadsData = useSelector(
-    state => state.businessOpportunities?.leads ?? [],
+  const response = useSelector(
+    state => state.businessOpportunities?.leads ?? {},
   );
+
+  const [pageNumber, setPageNumber] = useState(1);
+  const pageSize = 10;
+  const [leadsData, setLeadsData] = useState([]);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const pageNumberRef = useRef(1);
+  const onMomentumScrollBeginCalledDuringMomentum = useRef(false);
+
+  // Keep ref in sync with state so the response effect always reads the latest value
+  useEffect(() => {
+    pageNumberRef.current = pageNumber;
+  }, [pageNumber]);
+
+  useEffect(() => {
+    const records = response?.records || response?.leadsData;
+    if (records) {
+      if (pageNumberRef.current === 1) {
+        setLeadsData(records);
+      } else {
+        setLeadsData(prev => {
+          const newLeads = records.filter(newLead => !prev.some(p => p.prospectID === newLead.prospectID));
+          return [...prev, ...newLeads];
+        });
+      }
+      // Reset loading flag after data is loaded
+      setIsLoadingMore(false);
+    }
+  }, [response]);
+
   const leadsDataRequestStatus = useSelector(
     state =>
       state.businessOpportunities?.getLeadsRequestStatus ??
@@ -79,48 +125,90 @@ const BusinessScreen = props => {
   );
   const user = useSelector(state => state.auth?.user ?? null);
 
-  const isLoading = leadsDataRequestStatus === RequestStatus.INPROGRESS
+  const isLoading = leadsDataRequestStatus === RequestStatus.INPROGRESS;
 
-  // reverse data so newest first
-  let alteredData = [];
-  for (let i = 0; i < leadsData.length; i++) {
-    alteredData?.unshift(leadsData[i]);
+  // Data is already in correct order from API (newest first per page)
+  const alteredData = leadsData;
+
+ const filteredLeads = alteredData?.filter(lead => {
+  if (selectedFilter && lead.status !== selectedFilter) {
+    return false;
   }
 
-  const filteredLeads = alteredData?.filter(lead => {
-    if (selectedFilter && lead.status !== selectedFilter) {
-      return false;
-    }
+  if (!searchText || searchText.length < 3) return true;
 
-    if (!searchText) return true;
-    const searchLower = searchText.toLowerCase();
+  const searchLower = searchText.toLowerCase();
 
-    return (
-      (lead?.customer || '').toLowerCase().includes(searchLower) ||
-      (lead?.customerType || '').toLowerCase().includes(searchLower) ||
-      (lead?.product || '').toLowerCase().includes(searchLower) ||
-      (lead?.category || '').toLowerCase().includes(searchLower) ||
-      `${lead?.premiumExpected || ''}`.toLowerCase().includes(searchLower) ||
-      `${lead?.saidv || ''}`.toLowerCase().includes(searchLower) ||
-      `${lead?.phoneno || ''}`.toLowerCase().includes(searchLower)
-    );
-  });
+  return (
+    (lead?.customer || '').toLowerCase().includes(searchLower) ||
+    (lead?.customerType || '').toLowerCase().includes(searchLower) ||
+    (lead?.product || '').toLowerCase().includes(searchLower) ||
+    (lead?.category || '').toLowerCase().includes(searchLower) ||
+    `${lead?.premiumExpected || ''}`.toLowerCase().includes(searchLower) ||
+    `${lead?.saidv || ''}`.toLowerCase().includes(searchLower) ||
+    `${lead?.phoneno || ''}`.toLowerCase().includes(searchLower)
+  );
+});
 
   const tiek = useSelector((state) => state.auth);
 
-  console.log({tiek})
+  // console.log({ tiek })
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(BusinessOpportunitiesActions.getLeads());
       dispatch(BusinessOpportunitiesActions.getProducts());
       dispatch(BusinessOpportunitiesActions.getCategories());
 
       return () => {
         setSearchText('');
+        setSelectedFilter(null);
       };
     }, [dispatch]),
   );
+
+  useEffect(() => {
+    if (!isFocused) return;
+
+    if (searchText && searchText.length > 0 && searchText.length < 3) return;
+
+    setIsDebouncing(true);
+
+    const timer = setTimeout(() => {
+      let params = {
+        pageNumber,
+        pageSize,
+      };
+
+      if (searchText.length >= 3) {
+        params.search = searchText;
+      }    
+      // if (selectedFilter) params.status = selectedFilter;
+      if (modalFilters.status !== 'ALL') params.status = modalFilters.status;
+
+      if (modalFilters.year !== 'ALL') params.year = parseInt(modalFilters.year, 10);
+      if (modalFilters.month !== 'ALL') params.month = modalFilters.month;
+      if (modalFilters.leadProvider) params.leadProvider = modalFilters.leadProvider;
+      if (modalFilters.customerID) params.customerID = modalFilters.customerID;
+      if (modalFilters.customerType !== 'ALL') params.customerType = modalFilters.customerType;
+      if (modalFilters.businessType !== 'ALL') params.businessType = modalFilters.businessType;
+
+      dispatch(BusinessOpportunitiesActions.getLeads(params));
+      setIsDebouncing(false);
+    }, 500);
+    return () => {
+      clearTimeout(timer);
+      setIsDebouncing(false);
+    };
+  }, [searchText, modalFilters, applyFiltersTrigger, pageNumber, isFocused, dispatch]);
+
+  const handleSearchTextChange = text => {
+  setSearchText(text);
+
+  if (text.length === 0 || text.length >= 3) {
+    setPageNumber(1);
+    setIsDebouncing(true);
+  }
+};
 
   useEffect(() => {
     if (user?.userName) {
@@ -130,6 +218,12 @@ const BusinessScreen = props => {
       }));
     }
   }, [user]);
+
+  // Reset pagination and loading state when filters change
+  useEffect(() => {
+    setPageNumber(1);
+    setIsLoadingMore(false);
+  }, [modalFilters, applyFiltersTrigger]);
 
   const openModal = () => {
     setModalVisible(true);
@@ -150,6 +244,16 @@ const BusinessScreen = props => {
       friction: 11,
     }).start();
   }
+
+  const openFilterModal = () => {
+    setFilterModalVisible(true);
+    Animated.spring(slideAnim, {
+      toValue: 0,
+      useNativeDriver: true,
+      tension: 65,
+      friction: 11,
+    }).start();
+  };
 
   const closeModal = () => {
     Animated.timing(slideAnim, {
@@ -197,7 +301,7 @@ const BusinessScreen = props => {
       setConvertCustomerData({
         selfId: 0,
         customerId: "",
-        insuredName:  "",
+        insuredName: "",
         email: "",
         phoneno: "",
         dob: "",
@@ -210,6 +314,43 @@ const BusinessScreen = props => {
       })
     });
   }
+
+  const closeFilterModal = () => {
+    Animated.timing(slideAnim, {
+      toValue: SCREEN_HEIGHT,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      setFilterModalVisible(false);
+    });
+  };
+
+  const handleApplyFilters = newFilters => {
+    setIsDebouncing(true);
+    setModalFilters(newFilters);
+    setPageNumber(1);
+    setApplyFiltersTrigger(prev => prev + 1);
+
+    if (newFilters.status !== 'ALL') {
+      setSelectedFilter(null);
+    }
+  };
+
+  const handleClearFilters = () => {
+    setModalFilters({
+      year: 'ALL',
+      month: 'ALL',
+      status: 'ALL',
+      leadProvider: '',
+      customerID: '',
+      customerType: 'ALL',
+      businessType: 'ALL',
+    });
+    setPageNumber(1);
+    setIsDebouncing(true);
+
+    closeFilterModal();
+  };
 
   const handleAddNew = () => {
     setIsEditMode(false);
@@ -246,43 +387,49 @@ const BusinessScreen = props => {
     openModal();
   };
 
-  const handleConvertLead = leadData => {
-    // navigation.navigate('CustomerTab');
-    const productId = products?.find(product => product?.value === leadData?.product)?.id
-    const categoryId = categories?.find(category => category?.value === leadData?.category)?.id
+  // const handleConvertLead = leadData => {
+  //   // navigation.navigate('CustomerTab');
+  //   const productId = products?.find(product => product?.value === leadData?.product)?.id
+  //   const categoryId = categories?.find(category => category?.value === leadData?.category)?.id
 
-    setConvertCustomerData({
-      selfId: 0,
-      customerId: leadData?.customerID || "",
-      insuredName: leadData?.customer || "",
-      email: "",
-      phoneno: leadData?.phoneno || "",
-      dob: "",
-      address: "",
-      pan: "",
-      aadhar: "",
-      productId: productId || 0,
-      categoryId: categoryId || 0,
-      insuredCount: leadData?.insuredCount || 0,
-    })
+  //   setConvertCustomerData({
+  //     selfId: 0,
+  //     customerId: leadData?.customerID || "",
+  //     insuredName: leadData?.customer || "",
+  //     email: "",
+  //     phoneno: leadData?.phoneno || "",
+  //     dob: "",
+  //     address: "",
+  //     pan: "",
+  //     aadhar: "",
+  //     productId: productId || 0,
+  //     categoryId: categoryId || 0,
+  //     insuredCount: leadData?.insuredCount || 0,
+  //   })
+  //   setProspectId(leadData?.prospectID || null);
+  //   openConversionModal()
+  // };
+
+  const handleQuotationModal = (leadData) => {
+    setQuotationModalVisible(true)
     setProspectId(leadData?.prospectID || null);
-    openConversionModal()
-  };
+  }
+  // const handleFilterPress = filter => {
+  //   setIsDebouncing(true);
+  //   if (selectedFilter === filter) {
+  //     setSelectedFilter(null);
+  //   } else {
+  //     setSelectedFilter(filter);
+  //   }
+  //   setPageNumber(1);
+  // };
 
-  const handleFilterPress = filter => {
-    if (selectedFilter === filter) {
-      setSelectedFilter(null);
-    } else {
-      setSelectedFilter(filter);
-    }
-  };
-
-  const hotLeadCount = leadsData.filter(lead => lead.status === 'Hot').length;
-  const warmLeadCount = leadsData.filter(lead => lead.status === 'Warm').length;
-  const coldLeadCount = leadsData.filter(lead => lead.status === 'Cold').length;
-  const droppedLeadCount = leadsData.filter(
-    lead => lead.status === 'Dismissed',
-  ).length;
+  // const hotLeadCount = leadsData.filter(lead => lead.status === 'Hot').length;
+  // const warmLeadCount = leadsData.filter(lead => lead.status === 'Warm').length;
+  // const coldLeadCount = leadsData.filter(lead => lead.status === 'Cold').length;
+  // const droppedLeadCount = leadsData.filter(
+  //   lead => lead.status === 'Dismissed',
+  // ).length;
   const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
   const CARD_HORIZONTAL_MARGIN = 4;
@@ -391,11 +538,12 @@ const BusinessScreen = props => {
   const renderHeader = () => (
     <View style={styles.headerContainer}>
       <CommonHeader
-        leads={filteredLeads}
+        leads={response ?? []}
         searchText={searchText}
-        setSearchText={setSearchText}
+        setSearchText={handleSearchTextChange}
         isLoading={isLoading}
         handleAdditionalFunction={handleAddNew}
+        handleFilterOpen={openFilterModal}
       />
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.badgeRow}>
@@ -405,14 +553,14 @@ const BusinessScreen = props => {
               styles.hotLeadBadge,
               selectedFilter === 'Hot' && styles.selectedBadge,
             ]}
-            onPress={() => handleFilterPress('Hot')}
+          // onPress={() => handleFilterPress('Hot')}
           >
             <MaterialDesignIcons
               name="fire"
               color={COLOR.HOT_LEADS_COLOR}
               size={20}
             />
-            <Text style={styles.hotLeadText}>{`Hot: ${hotLeadCount}`}</Text>
+            <Text style={styles.hotLeadText}>{`Hot: ${response?.summary?.hotAmount}`}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.7}
@@ -420,14 +568,14 @@ const BusinessScreen = props => {
               styles.warmLeadBadge,
               selectedFilter === 'Warm' && styles.selectedBadge,
             ]}
-            onPress={() => handleFilterPress('Warm')}
+          // onPress={() => handleFilterPress('Warm')}
           >
             <MaterialDesignIcons
               name="heat-wave"
               color={COLOR.WARM_LEADS_COLOR}
               size={20}
             />
-            <Text style={styles.warmLeadText}>{`Warm: ${warmLeadCount}`}</Text>
+            <Text style={styles.warmLeadText}>{`Warm: ${response?.summary?.warmAmount}`}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.7}
@@ -435,31 +583,61 @@ const BusinessScreen = props => {
               styles.coldLeadBadge,
               selectedFilter === 'Cold' && styles.selectedBadge,
             ]}
-            onPress={() => handleFilterPress('Cold')}
+          // onPress={() => handleFilterPress('Cold')}
           >
             <MaterialDesignIcons
               name="snowflake"
               color={COLOR.COLD_LEADS_COLOR}
               size={20}
             />
-            <Text style={styles.coldLeadText}>{`Cold: ${coldLeadCount}`}</Text>
+            <Text style={styles.coldLeadText}>{`Cold: ${response?.summary?.coldAmount}`}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={[
+              styles.wonLeadBadge,
+              selectedFilter === 'Won' && styles.selectedBadge,
+            ]}
+          // onPress={() => handleFilterPress('Won')}
+          >
+            <MaterialDesignIcons
+              name="trophy-variant-outline"
+              color={COLOR.GREEN_COLOR}
+              size={20}
+            />
+            <Text style={styles.wonLeadText}>{`Won: ${response?.summary?.wonAmount}`}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={[
+              styles.differenceLeadBadge,
+              selectedFilter === 'Difference' && styles.selectedBadge,
+            ]}
+          // onPress={() => handleFilterPress('Difference')}
+          >
+            <MaterialDesignIcons
+              name="trending-up"
+              color={COLOR.PURPLE_COLOR}
+              size={20}
+            />
+            <Text style={styles.differenceLeadText}>{`Difference: ${response?.summary?.differenceAmount}`}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.7}
             style={[
               styles.droppedLeadBadge,
-              selectedFilter === 'Dismissed' && styles.selectedBadge,
+              selectedFilter === 'Total Amount' && styles.selectedBadge,
             ]}
-            onPress={() => handleFilterPress('Dismissed')}
+          // onPress={() => handleFilterPress('Total Amount')}
           >
             <MaterialDesignIcons
-              name="emoticon-dead-outline"
-              color="#757575"
+              name="wallet-outline"
+              color="#3e3ec6ff"
               size={20}
             />
             <Text
               style={styles.droppedLeadText}
-            >{`Dismissed: ${droppedLeadCount}`}</Text>
+            >{`Total Amount: ${response?.summary?.totalAmount}`}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -471,7 +649,7 @@ const BusinessScreen = props => {
     return (
       <View style={styles.hiddenItemContainer}>
         <TouchableOpacity
-          style={[styles.editButton, {backgroundColor: item?.leadStatus === 'BOI Created' ? '#FFFFFF' : '#F8FAFC'}]}
+          style={[styles.editButton, { backgroundColor: item?.leadStatus === 'BOI Created' ? '#FFFFFF' : '#F8FAFC' }]}
           onPress={() => handleEditLead(item)}
           disabled={!(item?.leadStatus === 'BOI Created')}
           activeOpacity={0.8}
@@ -486,19 +664,19 @@ const BusinessScreen = props => {
           <Text style={styles.editButtonText}>Edit</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.convertButton, {backgroundColor: item?.leadStatus === 'BOI Created' ? '#FFFFFF' : '#F8FAFC'}]}
+          style={[styles.convertButton, { backgroundColor: item?.leadStatus === 'BOI Created' ? '#FFFFFF' : '#F8FAFC' }]}
           disabled={!(item?.leadStatus === 'BOI Created')}
-          onPress={() => handleConvertLead(item)}
+          onPress={() => handleQuotationModal(item)}
           activeOpacity={0.8}
         >
           <View style={styles.iconContainer}>
             <MaterialDesignIcons
-              name="account-convert-outline"
+              name="eye-check"
               size={20}
               color={COLOR.BLACK_COLOR}
             />
           </View>
-          <Text style={styles.convertButtonText}>Convert</Text>
+          <Text style={styles.convertButtonText}>Action</Text>
         </TouchableOpacity>
       </View>
     );
@@ -549,9 +727,9 @@ const BusinessScreen = props => {
         barStyle="light-content"
         backgroundColor={COLOR.PRIMARY_COLOR}
       />
-      {renderHeader()}
+      {isLoading ? null : renderHeader()}
 
-      {isLoading ? (
+      {(isLoading || isDebouncing) && pageNumber === 1 ? (
         <View>
           {[0, 1, 2, 4, 5, 6].map(i => (
             <ShimmerCard key={`s-${i}`} index={i} />
@@ -570,7 +748,8 @@ const BusinessScreen = props => {
                 index === filteredLeads?.length - 1 && styles.lastCard,
               ]}
             >
-              <BusinessLeadMangementCard leadData={item} />
+              <BusinessLeadMangementCard leadData={item}
+              />
             </View>
           )}
           renderHiddenItem={renderHiddenItem}
@@ -584,6 +763,23 @@ const BusinessScreen = props => {
           disableRightSwipe
           ListEmptyComponent={renderEmptyState}
           showsVerticalScrollIndicator={false}
+          onMomentumScrollBegin={() => {
+            onMomentumScrollBeginCalledDuringMomentum.current = false;
+          }}
+          onEndReached={() => {
+            if (onMomentumScrollBeginCalledDuringMomentum.current) return;
+            onMomentumScrollBeginCalledDuringMomentum.current = true;
+            if (isLoadingMore) return;
+            if (!leadsData || leadsData.length === 0) return;
+            const hasNextPage = response?.pagination ?
+              (response.pagination.hasNext === true || response.pagination.hasNext === 1) :
+              false;
+            if (!hasNextPage) return;
+            if (isLoading) return;
+            setIsLoadingMore(true);
+            setPageNumber(prev => prev + 1);
+          }}
+          onEndReachedThreshold={0.4}
           onRowOpen={(rowKey, rowMap) => {
             Object.keys(rowMap).forEach(key => {
               if (key !== rowKey) {
@@ -613,7 +809,23 @@ const BusinessScreen = props => {
         }
         slideAnim={slideAnim}
         convertCustomerData={convertCustomerData}
-        insurerCount ={convertCustomerData?.insuredCount}
+        insurerCount={convertCustomerData?.insuredCount}
+      />
+      <BusinessFilterModal
+        visible={filterModalVisible}
+        onClose={closeFilterModal}
+        onApply={handleApplyFilters}
+        onClearAll={handleClearFilters}
+        currentFilters={modalFilters}
+        slideAnim={slideAnim}
+      />
+      <BusinessQuotationModal
+        visible={quotationModalVisible}
+        onClose={() => setQuotationModalVisible(false)}
+        leadDataOriginal={
+          leadsData.find(lead => lead.prospectID === prospectId)
+        }
+        slideAnim={slideAnim}
       />
     </View>
   );
@@ -694,6 +906,40 @@ const styles = StyleSheet.create({
   },
   coldLeadText: {
     color: COLOR.COLD_LEADS_COLOR,
+    paddingLeft: 7,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 13,
+  },
+  wonLeadBadge: {
+    backgroundColor: '#b9ecc0a1',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 8,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 8,
+    marginLeft: 8,
+  },
+  wonLeadText: {
+    color: COLOR.GREEN_COLOR,
+    paddingLeft: 7,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 13,
+  },
+  differenceLeadBadge: {
+    backgroundColor: '#e2c0ecff',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 8,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 8,
+    marginLeft: 8,
+  },
+  differenceLeadText: {
+    color: COLOR.PURPLE_COLOR,
     paddingLeft: 7,
     fontFamily: 'Poppins-Medium',
     fontSize: 13,

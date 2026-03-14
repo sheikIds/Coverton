@@ -4,7 +4,7 @@ import MaterialDesignIcons from '@react-native-vector-icons/material-design-icon
 import { COLOR } from '../../utils/constants';
 import CustomInput from './CustomInput'
 const CommonHeader = (props) => {
-    const { leads,searchText, setSearchText, isLoading, handleAdditionalFunction } = props
+  const { leads, searchText, setSearchText, isLoading, handleAdditionalFunction, handleFilterOpen } = props;
   return (
     <View>
       <View style={styles.titleRow}>
@@ -18,8 +18,8 @@ const CommonHeader = (props) => {
         <View style={styles.titleTextContainer}>
           <Text style={styles.titleText}>Business Opportunities</Text>
           <Text style={styles.subtitleText}>
-            {leads?.length}{' '}
-            {leads?.length === 1 ? 'lead' : 'leads'} available
+            {leads?.pagination?.totalRecords}{' '}
+            {leads?.pagination?.totalRecords === 1 ? 'lead' : 'leads'} available
           </Text>
         </View>
       </View>
@@ -32,6 +32,21 @@ const CommonHeader = (props) => {
           setValue={setSearchText}
           addNew
         />
+        {handleFilterOpen && (
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={handleFilterOpen}
+            disabled={isLoading}
+            style={styles.filterButton}
+          >
+            <MaterialDesignIcons
+              name="filter-outline"
+              color={COLOR.BLACK_COLOR || '#000'}
+              size={25}
+            />
+            {/* <Text style={styles.filterButtonText}>Filter</Text> */}
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={handleAdditionalFunction}
@@ -53,65 +68,81 @@ const CommonHeader = (props) => {
 export default CommonHeader
 
 const styles = StyleSheet.create({
-    headerContainer: {
-        backgroundColor: '#FFFFFF',
-        paddingHorizontal: 16,
-        paddingTop: 20,
-        paddingBottom: 16,
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 8,
-        elevation: 3,
-        marginBottom: 16,
-      },
-      titleRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-      },
-      iconCircle: {
-        width: 52,
-        height: 52,
-        borderRadius: 26,
-        backgroundColor: '#F0F4FF',
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      titleTextContainer: {
-        marginLeft: 14,
-        flex: 1,
-      },
-      titleText: {
-        fontFamily: 'Poppins-SemiBold',
-        fontSize: 22,
-        color: '#1A1A1A',
-        letterSpacing: -0.5,
-      },
-      subtitleText: {
-        fontFamily: 'Poppins-Regular',
-        fontSize: 13,
-        color: '#6B7280',
-        marginTop: 2,
-      },
-      searchAddContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-      },
-      addButton: {
-        marginLeft: 12,
-        backgroundColor: '#F0F4FF',
-        borderRadius: 14,
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row',
-        paddingHorizontal: 7,
-        width: '25%'
-      },
-      addButtonText: {
-        // fontFamily: FONTS.FONT_REGULAR,
-        fontSize: 10
-      },
+  headerContainer: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 16,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+    marginBottom: 16,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  iconCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#F0F4FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  titleTextContainer: {
+    marginLeft: 14,
+    flex: 1,
+  },
+  titleText: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: 22,
+    color: '#1A1A1A',
+    letterSpacing: -0.5,
+  },
+  subtitleText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 13,
+    color: '#6B7280',
+    marginTop: 2,
+  },
+  searchAddContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  addButton: {
+    marginLeft: 5,
+    backgroundColor: '#F0F4FF',
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: 7,
+    width: '25%'
+  },
+  addButtonText: {
+    fontSize: 12,
+    fontFamily: 'Poppins-Medium',
+    marginLeft: 4
+  },
+  filterButton: {
+    marginLeft: 2,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: 0,
+
+  },
+  // filterButtonText: {
+  //   fontSize: 12,
+  //   fontFamily: 'Poppins-Medium',
+  //   // marginLeft: 6,
+  //   color: '#374151'
+  // },
 })

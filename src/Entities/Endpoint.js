@@ -6,10 +6,12 @@ export const BASE_ENDPOINT = 'http://10.0.2.2:5030/'
 // Business Opportunities Endpoints
 export const GET_PRODUCT = BASE + 'BOI/Products'
 export const GET_CATEGORY = BASE + 'BOI/Category'
-export const GET_LEAD = BASE + 'BOI'
+export const GET_LEAD = BASE + 'BOI/getLead'
 export const GET_CUSTOMERS_NAME = BASE + 'BOI/Customers'
 export const CREATE_LEAD = BASE + 'BOI'
 export const UPDATE_LEAD = BASE + 'BOI'
+export const GET_PREFERRED_INSURERS = BASE + 'BOI/preferredinsurers'
+export const QUOTATION_REQUEST = BASE + 'BOI/quotationrequest'
 
 // Customers Endpoints
 export const GET_CUSTOMER_FIELDS = BASE + 'Customer/Fields'

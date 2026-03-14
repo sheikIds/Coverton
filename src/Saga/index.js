@@ -12,6 +12,8 @@ import {
   getLeads,
   createLead,
   updateLead,
+  getInsuranceCompanies,
+  quotationRequest,
 } from './BusinessOpportunitiesSaga';
 import {
   getCustomersName,
@@ -49,6 +51,8 @@ export default function* root() {
     takeLatest(BOTypes.GET_LEADS, getLeads),
     takeLatest(BOTypes.CREATE_LEAD, createLead),
     takeLatest(BOTypes.UPDATE_LEAD, updateLead),
+    takeLatest(BOTypes.GET_INSURANCE_COMPANIES, getInsuranceCompanies),
+    takeLatest(BOTypes.QUOTATION_REQUEST, quotationRequest),
 
     takeLatest(CustomerTypes.GET_CUSTOMERS_NAME, getCustomersName),
     takeLatest(CustomerTypes.GET_CUSTOMER_FIELDS, getCustomerFields),

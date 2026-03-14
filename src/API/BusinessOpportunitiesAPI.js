@@ -23,10 +23,20 @@ export const getCaterogies = async () => {
   }
 };
 
-export const getLeads = async () => {
+export const getInsuranceCompanies = async (categoryId) => {
   try {
-    // This will call GET: http://10.0.2.2:5030/api/BOI
-    const response = await api.get(Endpoints.GET_LEAD);
+    // This will call: http://10.0.2.2:5030/api/BOI/InsuranceCompany
+    const response = await api.get(Endpoints.GET_PREFERRED_INSURERS, { params: { categoryId } });
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error?.response?.data || error.message);
+    throw error?.response?.data || error;
+  }
+};
+export const getLeads = async (params) => {
+  try {
+    // This will call GET: http://10.0.2.2:5030/api/BOI/getLead
+    const response = await api.get(Endpoints.GET_LEAD, { params });
     return response.data;
   } catch (error) {
     console.error('API Error:', error?.response?.data || error.message);
@@ -55,6 +65,18 @@ export const updateLead = async ({ leadData, prospectId }) => {
       }
     );
 
+    return response.data;
+  } catch (error) {
+    console.error('API Error:', error?.response?.data || error);
+    throw error?.response?.data || error;
+  }
+};
+
+export const quotationRequest = async ({ prospectId }) => {
+  try {
+    const response = await api.post(Endpoints.QUOTATION_REQUEST, null, {
+      params: { prospectid: prospectId },
+    });
     return response.data;
   } catch (error) {
     console.error('API Error:', error?.response?.data || error);

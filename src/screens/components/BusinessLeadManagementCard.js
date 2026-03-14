@@ -24,77 +24,77 @@ const BusinessLeadManagementCard = props => {
   const leadTemp = getLeadTemperature(leadData?.timeByWhen);
 
   return (
-  <View style={styles.cardContainer}>
-    <View style={styles.headerRow}>
-      <View style={styles.titleBadge}>
-        <Text style={styles.titleText}>{leadData.prospectID}</Text>
-      </View>
-      <View style={styles.badgesContainer}>
-        <View
-          style={[styles.tempBadge, { backgroundColor: leadTemp.bgColor }]}
-        >
-          <Text style={[styles.badgeText, { color: leadTemp.color }]}>
-            {leadData.status}
-          </Text>
+    <View style={styles.cardContainer}>
+      <View style={styles.headerRow}>
+        <View style={styles.titleBadge}>
+          <Text style={styles.titleText}>{leadData.prospectID}</Text>
         </View>
-        <View style={styles.typeBadge}>
-          <Text style={styles.badgeText}>{leadData.customerType}</Text>
+        <View style={styles.badgesContainer}>
+          <View
+            style={[styles.tempBadge, { backgroundColor: leadTemp.bgColor }]}
+          >
+            <Text style={[styles.badgeText, { color: leadTemp.color }]}>
+              {leadData.status}
+            </Text>
+          </View>
+          <View style={styles.typeBadge}>
+            <Text style={styles.badgeText}>{leadData.customerType}</Text>
+          </View>
         </View>
-      </View>
-      {!(leadData?.leadStatus === 'BOI Created') ? <TouchableOpacity activeOpacity={0.7}>
-        <MaterialDesignIcons
-          name="check-circle-outline"
-          size={22}
-          color={COLOR.GREEN_COLOR}
-        />
-      </TouchableOpacity> : null}
-    </View>
-    {/* Consultant Name */}
-    <Text style={styles.consultantText}>{leadData?.customer}</Text>
-    {/* Compact Details Grid */}
-    <View style={styles.detailsGrid}>
-      <View style={styles.detailItem}>
-        <MaterialDesignIcons
-          name="bullseye"
-          size={14}
-          color={COLOR.PRIMARY_COLOR || '#4A90E2'}
-        />
-        <Text
-          style={styles.detailLabel}
-        >{`${leadData?.product} - ${leadData?.category}`}</Text>
-      </View>
-
-      <View style={styles.detailItem}>
-        <Text style={styles.detailLabel}>Premium:</Text>
-        <Text style={styles.detailValue}>₹{leadData?.premiumExpected}</Text>
-      </View>
-
-      <View style={styles.detailItem}>
-        <Text style={styles.detailLabel}>SAIDV:</Text>
-        <Text style={styles.detailValue}>₹{leadData?.saidv}</Text>
-      </View>
-
-      <View style={styles.detailItem}>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={styles.callContainer}
-          onPress={()=>{Linking.openURL(`tel:${leadData?.phoneno}`)}}
-        >
+        {!(leadData?.leadStatus === 'BOI Created') ? <TouchableOpacity activeOpacity={0.7}>
           <MaterialDesignIcons
-            name="phone"
+            name="check-circle-outline"
+            size={22}
+            color={COLOR.GREEN_COLOR}
+          />
+        </TouchableOpacity> : null}
+      </View>
+      {/* Consultant Name */}
+      <Text style={styles.consultantText}>{leadData?.customer}</Text>
+      {/* Compact Details Grid */}
+      <View style={styles.detailsGrid}>
+        <View style={styles.detailItem}>
+          <MaterialDesignIcons
+            name="bullseye"
             size={14}
             color={COLOR.PRIMARY_COLOR || '#4A90E2'}
           />
-          <Text style={styles.detailLabel}>{leadData?.phoneno}</Text>
-        </TouchableOpacity>
-        <Text style={styles.detailValue}>
-          {leadData?.timeByWhen
-            ? new Date(leadData.timeByWhen).toISOString().split('T')[0]
-            : ''}
-        </Text>
+          <Text
+            style={styles.detailLabel}
+          >{`${leadData?.product} - ${leadData?.category}`}</Text>
+        </View>
+
+        <View style={styles.detailItem}>
+          <Text style={styles.detailLabel}>Premium:</Text>
+          <Text style={styles.detailValue}>₹{leadData?.premiumExpected}</Text>
+        </View>
+
+        <View style={styles.detailItem}>
+          <Text style={styles.detailLabel}>SAIDV:</Text>
+          <Text style={styles.detailValue}>₹{leadData?.saidv}</Text>
+        </View>
+
+        <View style={styles.detailItem}>
+          <TouchableOpacity
+            activeOpacity={0.7}
+            style={styles.callContainer}
+            onPress={() => { Linking.openURL(`tel:${leadData?.phoneno}`) }}
+          >
+            <MaterialDesignIcons
+              name="phone"
+              size={14}
+              color={COLOR.PRIMARY_COLOR || '#4A90E2'}
+            />
+            <Text style={styles.detailLabel}>{leadData?.phoneno}</Text>
+          </TouchableOpacity>
+          <Text style={styles.detailValue}>
+            {leadData?.timeByWhen
+              ? new Date(leadData.timeByWhen).toISOString().split('T')[0]
+              : ''}
+          </Text>
+        </View>
       </View>
     </View>
-  </View>
   );
 };
 
@@ -180,10 +180,10 @@ const styles = StyleSheet.create({
     color: '#1A1A1A',
     marginLeft: 'auto',
   },
-  callContainer: { 
+  callContainer: {
     flexDirection: 'row',
     gap: 6,
-    alignItems: 'center' 
+    alignItems: 'center'
   }
 });
 
