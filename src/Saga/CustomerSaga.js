@@ -4,9 +4,9 @@ import * as CustomerAPI from '../API/CustomerAPI';
 import CustomerActions from '../Redux/CustomerRedux';
 import * as RequestStatus from '../Entities/RequestStatus';
 
-export function* getCustomersName() {
+export function* getCustomersName({ userId }) {
   try {
-    const response = yield call(CustomerAPI.getCustomersName)
+    const response = yield call(CustomerAPI.getCustomersName, { userId })
     if (response?.err) {
       yield put(CustomerActions.setCustomersNameRequestStatus(RequestStatus.ERROR))
       return

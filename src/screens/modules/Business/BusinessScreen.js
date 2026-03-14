@@ -130,25 +130,25 @@ const BusinessScreen = props => {
   // Data is already in correct order from API (newest first per page)
   const alteredData = leadsData;
 
- const filteredLeads = alteredData?.filter(lead => {
-  if (selectedFilter && lead.status !== selectedFilter) {
-    return false;
-  }
+  const filteredLeads = alteredData?.filter(lead => {
+    if (selectedFilter && lead.status !== selectedFilter) {
+      return false;
+    }
 
-  if (!searchText || searchText.length < 3) return true;
+    if (!searchText || searchText.length < 3) return true;
 
-  const searchLower = searchText.toLowerCase();
+    const searchLower = searchText.toLowerCase();
 
-  return (
-    (lead?.customer || '').toLowerCase().includes(searchLower) ||
-    (lead?.customerType || '').toLowerCase().includes(searchLower) ||
-    (lead?.product || '').toLowerCase().includes(searchLower) ||
-    (lead?.category || '').toLowerCase().includes(searchLower) ||
-    `${lead?.premiumExpected || ''}`.toLowerCase().includes(searchLower) ||
-    `${lead?.saidv || ''}`.toLowerCase().includes(searchLower) ||
-    `${lead?.phoneno || ''}`.toLowerCase().includes(searchLower)
-  );
-});
+    return (
+      (lead?.customer || '').toLowerCase().includes(searchLower) ||
+      (lead?.customerType || '').toLowerCase().includes(searchLower) ||
+      (lead?.product || '').toLowerCase().includes(searchLower) ||
+      (lead?.category || '').toLowerCase().includes(searchLower) ||
+      `${lead?.premiumExpected || ''}`.toLowerCase().includes(searchLower) ||
+      `${lead?.saidv || ''}`.toLowerCase().includes(searchLower) ||
+      `${lead?.phoneno || ''}`.toLowerCase().includes(searchLower)
+    );
+  });
 
   const tiek = useSelector((state) => state.auth);
 
@@ -177,11 +177,12 @@ const BusinessScreen = props => {
       let params = {
         pageNumber,
         pageSize,
+        userId: user?.userId
       };
 
       if (searchText.length >= 3) {
         params.search = searchText;
-      }    
+      }
       // if (selectedFilter) params.status = selectedFilter;
       if (modalFilters.status !== 'ALL') params.status = modalFilters.status;
 
@@ -202,13 +203,13 @@ const BusinessScreen = props => {
   }, [searchText, modalFilters, applyFiltersTrigger, pageNumber, isFocused, dispatch]);
 
   const handleSearchTextChange = text => {
-  setSearchText(text);
+    setSearchText(text);
 
-  if (text.length === 0 || text.length >= 3) {
-    setPageNumber(1);
-    setIsDebouncing(true);
-  }
-};
+    if (text.length === 0 || text.length >= 3) {
+      setPageNumber(1);
+      setIsDebouncing(true);
+    }
+  };
 
   useEffect(() => {
     if (user?.userName) {
@@ -387,49 +388,11 @@ const BusinessScreen = props => {
     openModal();
   };
 
-  // const handleConvertLead = leadData => {
-  //   // navigation.navigate('CustomerTab');
-  //   const productId = products?.find(product => product?.value === leadData?.product)?.id
-  //   const categoryId = categories?.find(category => category?.value === leadData?.category)?.id
-
-  //   setConvertCustomerData({
-  //     selfId: 0,
-  //     customerId: leadData?.customerID || "",
-  //     insuredName: leadData?.customer || "",
-  //     email: "",
-  //     phoneno: leadData?.phoneno || "",
-  //     dob: "",
-  //     address: "",
-  //     pan: "",
-  //     aadhar: "",
-  //     productId: productId || 0,
-  //     categoryId: categoryId || 0,
-  //     insuredCount: leadData?.insuredCount || 0,
-  //   })
-  //   setProspectId(leadData?.prospectID || null);
-  //   openConversionModal()
-  // };
-
   const handleQuotationModal = (leadData) => {
     setQuotationModalVisible(true)
     setProspectId(leadData?.prospectID || null);
   }
-  // const handleFilterPress = filter => {
-  //   setIsDebouncing(true);
-  //   if (selectedFilter === filter) {
-  //     setSelectedFilter(null);
-  //   } else {
-  //     setSelectedFilter(filter);
-  //   }
-  //   setPageNumber(1);
-  // };
 
-  // const hotLeadCount = leadsData.filter(lead => lead.status === 'Hot').length;
-  // const warmLeadCount = leadsData.filter(lead => lead.status === 'Warm').length;
-  // const coldLeadCount = leadsData.filter(lead => lead.status === 'Cold').length;
-  // const droppedLeadCount = leadsData.filter(
-  //   lead => lead.status === 'Dismissed',
-  // ).length;
   const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient);
 
   const CARD_HORIZONTAL_MARGIN = 4;
@@ -645,13 +608,14 @@ const BusinessScreen = props => {
   );
 
   const renderHiddenItem = ({ item }) => {
+    console.log({ item })
 
     return (
       <View style={styles.hiddenItemContainer}>
         <TouchableOpacity
-          style={[styles.editButton, { backgroundColor: item?.leadStatus === 'BOI Created' ? '#FFFFFF' : '#F8FAFC' }]}
+          style={[styles.editButton, { backgroundColor: item?.stage === 'BOI Created' ? '#FFFFFF' : '#F8FAFC' }]}
           onPress={() => handleEditLead(item)}
-          disabled={!(item?.leadStatus === 'BOI Created')}
+          disabled={!(item?.stage === 'BOI Created')}
           activeOpacity={0.8}
         >
           <View style={styles.iconContainer}>
@@ -664,19 +628,19 @@ const BusinessScreen = props => {
           <Text style={styles.editButtonText}>Edit</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.convertButton, { backgroundColor: item?.leadStatus === 'BOI Created' ? '#FFFFFF' : '#F8FAFC' }]}
-          disabled={!(item?.leadStatus === 'BOI Created')}
+          style={[styles.convertButton, { backgroundColor: item?.stage === 'BOI Created' ? '#FFFFFF' : '#F8FAFC' }]}
+          disabled={!(item?.stage === 'BOI Created')}
           onPress={() => handleQuotationModal(item)}
           activeOpacity={0.8}
         >
           <View style={styles.iconContainer}>
             <MaterialDesignIcons
-              name="eye-check"
+              name="format-quote-close"
               size={20}
               color={COLOR.BLACK_COLOR}
             />
           </View>
-          <Text style={styles.convertButtonText}>Action</Text>
+          <Text style={styles.convertButtonText}>Quotation</Text>
         </TouchableOpacity>
       </View>
     );
@@ -1008,7 +972,7 @@ const styles = StyleSheet.create({
   editButtonText: {
     color: COLOR.BLACK_COLOR,
     fontFamily: FONTS.FONT_SEMIBOLD,
-    fontSize: 12,
+    fontSize: 10,
     letterSpacing: 0.3,
   },
   convertButton: {
@@ -1029,7 +993,7 @@ const styles = StyleSheet.create({
   convertButtonText: {
     color: COLOR.BLACK_COLOR,
     fontFamily: FONTS.FONT_SEMIBOLD,
-    fontSize: 12,
+    fontSize: 10,
     letterSpacing: 0.3,
   },
   emptyContainer: {

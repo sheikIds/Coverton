@@ -1,9 +1,11 @@
 import api from './apiClient';
 import * as Endpoints from '../Entities/Endpoint';
 
-export const getCustomersName = async () => {
+export const getCustomersName = async ({ userId }) => {
   try {
-    const response = await api.get(Endpoints.GET_CUSTOMERS_NAME);
+    const response = await api.get(Endpoints.GET_CUSTOMERS_NAME, {
+      params: { id: userId },
+    });
     return response.data;
   } catch (error) {
     console.error('API Error:', error?.response?.data || error.message);

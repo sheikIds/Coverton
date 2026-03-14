@@ -119,15 +119,18 @@ const AddBusinessModal = props => {
       const companies = JSON.parse(JSON.stringify(rawCompanies));
 
       if (Array.isArray(companies) && companies.length > 0) {
-        const formattedCompanies = companies.map(item => ({
-          id: item.companyId,
-          value: item.companyName,
-          rank: item.rank,
+        const insurers = [...rawCompanies];
+        const sortedByRank = insurers.sort((a, b) => a.rank - b.rank);
+        const topThree = sortedByRank.slice(0, 3);
+
+        const preferredCompanies = topThree.map((company) => ({
+          id: company.companyId,
+          value: company.companyName,
         }));
 
         setLeadData(prev => ({
           ...prev,
-          preferredInsuranceCompanies: formattedCompanies,
+          preferredInsuranceCompanies: preferredCompanies,
         }));
       } else if (Array.isArray(companies) && companies.length === 0) {
         setLeadData(prev => ({
@@ -201,7 +204,7 @@ const AddBusinessModal = props => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [createLeadsRequestStatus, dispatch]);
-  
+
   useEffect(() => {
     if (updateLeadRequestStatus === RequestStatus.OK) {
       setLeadData(INITIAL_LEAD_DATA);
@@ -219,10 +222,11 @@ const AddBusinessModal = props => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (modalVisible) {
-      dispatch(CustomerActions.getCustomersName());
+    console.log({ user })
+    if (modalVisible && user?.userId) {
+      dispatch(CustomerActions.getCustomersName(user?.userId));
     }
-  }, [modalVisible, dispatch]);
+  }, [modalVisible, dispatch, user?.userId]);
 
   useEffect(() => {
     if (productsState && productsState.length > 0) {

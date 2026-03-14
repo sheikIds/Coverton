@@ -23,7 +23,7 @@ export const INITIAL_STATE = Immutable({
 });
 
 const { Types, Creators } = createActions({
-  getCustomersName: [],
+  getCustomersName: ['userId'],
   setCustomersNameRequestStatus: ['status'],
   storeCustomersName: ['customers'],
   getCustomerFields: ['categoryId'],

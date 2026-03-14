@@ -279,7 +279,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
 
   const localImageSource = require('./src/assets/images/CovertonAppLogo.png');
 
-const user = useSelector((state: any) => state?.auth?.user?.userName);
+  const user = useSelector((state: any) => state?.auth?.user?.userName);
   console.log({ user })
 
   return (
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLOR.WHITE_COLOR,
   },
   confirmButton: {
-    backgroundColor: COLOR.PRIMARY_COLOR,
+    backgroundColor: COLOR.RED_COLOR,
   },
   cancelButtonText: {
     color: COLOR.PRIMARY_COLOR,
