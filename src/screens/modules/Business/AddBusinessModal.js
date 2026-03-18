@@ -40,6 +40,7 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const INITIAL_LEAD_DATA = {
   consultant: '',
+  consultantId: 0,
   customer: '',
   customerType: '',
   product: '',
@@ -106,6 +107,17 @@ const AddBusinessModal = props => {
     state => state?.customer?.customersName ?? [],
   );
   const user = useSelector(state => state.auth?.user ?? null);
+  const customerById = useSelector(state => state?.customer?.customerById ?? null);
+  const customerByIdRequestStatus = useSelector(
+    state => state?.customer?.getCustomerByIdRequestStatus,
+  );
+
+  // Fetch customer data by prospectId when opening in edit mode
+  useEffect(() => {
+    if (modalVisible && isEditMode && prospectId) {
+      dispatch(CustomerActions.getCustomerById(prospectId));
+    }
+  }, [modalVisible, isEditMode, prospectId, dispatch]);
 
   useEffect(() => {
     if (modalVisible && leadData.category) {
@@ -113,11 +125,28 @@ const AddBusinessModal = props => {
     }
   }, [modalVisible, dispatch, leadData.category]);
 
+  // For NEW leads: auto-pick top 3 preferred insurers by rank
+  // For EDIT leads: resolve preferred IDs from API response
   useEffect(() => {
     const rawCompanies = insuranceCompanies?.responseData || insuranceCompanies;
-    if (rawCompanies) {
-      const companies = JSON.parse(JSON.stringify(rawCompanies));
+    if (!rawCompanies) return;
 
+    const companies = JSON.parse(JSON.stringify(rawCompanies));
+
+    if (isEditMode && customerByIdRequestStatus === RequestStatus.OK && customerById) {
+      // Edit mode: resolve preferred IDs from getCustomerById response
+      const customerData = JSON.parse(JSON.stringify(customerById));
+      const companiesArr = Array.isArray(companies) ? companies : [];
+      const resolvedPreferred = (customerData.preferred || []).map(p => {
+        const match = companiesArr.find(c => c.companyId === p.id);
+        return { id: p.id, value: match?.companyName || `Company #${p.id}` };
+      });
+      setLeadData(prev => ({
+        ...prev,
+        preferredInsuranceCompanies: resolvedPreferred,
+      }));
+    } else if (!isEditMode) {
+      // New lead mode: pick top 3 by rank
       if (Array.isArray(companies) && companies.length > 0) {
         const insurers = [...rawCompanies];
         const sortedByRank = insurers.sort((a, b) => a.rank - b.rank);
@@ -139,67 +168,74 @@ const AddBusinessModal = props => {
         }));
       }
     }
-  }, [insuranceCompanies]);
+  }, [insuranceCompanies, isEditMode, customerByIdRequestStatus, customerById]);
+  console.log({ user, id: user?.userId })
   useEffect(() => {
-    if (modalVisible && user?.userName && !leadData.consultant) {
+    if (modalVisible && user?.userName && (!leadData.consultant || leadData.consultantId === 0)) {
       setLeadData(prev => ({
         ...prev,
         consultant: user.userName,
+        consultantId: user.userId,
       }));
     }
-  }, [modalVisible, user?.userName, leadData.consultant]);
+  }, [modalVisible, user?.userName, leadData.consultant, leadData.consultantId]);
 
+  // When modal opens: reset state for new mode, or wait for API in edit mode
   useEffect(() => {
     if (modalVisible) {
       setShowCreateCustomer(!isEditMode);
 
-      if (isEditMode && formData) {
-        const processedFormData = { ...formData };
-
-        if (processedFormData.timeByWhen) {
-          const localDate = new Date(processedFormData.timeByWhen);
-          const utcDate = new Date(
-            Date.UTC(
-              localDate.getFullYear(),
-              localDate.getMonth(),
-              localDate.getDate(),
-              0,
-              0,
-              0,
-              0,
-            ),
-          );
-          processedFormData.timeByWhen = utcDate.toISOString();
-        }
-        if (processedFormData?.product) {
-          const productId = products?.find(
-            product => product?.value === processedFormData?.product,
-          )?.id;
-          processedFormData.product = productId;
-        }
-        if (processedFormData?.category) {
-          const categoryId = categories?.find(
-            category => category?.value === processedFormData?.category,
-          )?.id;
-          processedFormData.category = categoryId;
-        }
-
-        setLeadData(processedFormData);
-      } else {
+      if (!isEditMode) {
+        // New lead: reset to defaults
         setLeadData({
           ...INITIAL_LEAD_DATA,
           consultant: user?.userName || '',
+          consultantId: user?.userId || 0,
         });
       }
+      // Edit mode: data comes from getCustomerById response (handled below)
     }
-  }, [modalVisible, isEditMode, formData, products, categories, user?.userName]);
+  }, [modalVisible, isEditMode, user?.userName, user?.userId]);
+
+  // Prepopulate form when getCustomerById response arrives (edit mode)
+  useEffect(() => {
+    if (
+      modalVisible &&
+      isEditMode &&
+      customerByIdRequestStatus === RequestStatus.OK &&
+      customerById
+    ) {
+      const data = JSON.parse(JSON.stringify(customerById));
+      const vehicleNumber =
+        data.boiigt?.additionals?.find(a => a.name === 'Vehicle Number')?.value || '';
+
+      setLeadData(prev => ({
+        ...prev,
+        consultant: data.consultant || prev.consultant,
+        consultantId: prev.consultantId,
+        customer: data.customerId || '',
+        customerType: data.customerType || '',
+        product: data.productId || 0,
+        category: data.categoryId || 0,
+        timeByWhen: data.timeByWhen || '',
+        premiumExpected: data.premiumExpected || 0,
+        saidv: data.saidv || 0,
+        phoneno: data.phoneno || '',
+        expectedExpenditure: data.expectedExpenditure || 0,
+        directExpenditure: data.directExpenditure || 0,
+        vehicleNumber,
+      }));
+
+      setShowCreateCustomer(false);
+    }
+  }, [modalVisible, isEditMode, customerByIdRequestStatus, customerById]);
 
   useEffect(() => {
     if (createLeadsRequestStatus === RequestStatus.OK) {
       setLeadData(INITIAL_LEAD_DATA);
       closeModal();
       dispatch(
-        BusinessOpportunitiesActions.getLeads({ pageNumber: 1, pageSize: 10 }),
+        BusinessOpportunitiesActions.getLeads({ pageNumber: 1, pageSize: 10, userId: user?.userId }),
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -210,7 +246,7 @@ const AddBusinessModal = props => {
       setLeadData(INITIAL_LEAD_DATA);
       closeModal();
       dispatch(
-        BusinessOpportunitiesActions.getLeads({ pageNumber: 1, pageSize: 10 }),
+        BusinessOpportunitiesActions.getLeads({ pageNumber: 1, pageSize: 10, userId: user?.userId }),
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -401,6 +437,8 @@ const AddBusinessModal = props => {
         relationship,
         age,
       });
+
+      console.log({ payload, leadData })
 
       if (isEditMode) {
         dispatch(BusinessOpportunitiesActions.updateLead(payload, prospectId));

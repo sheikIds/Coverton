@@ -115,8 +115,10 @@ export function* confirmQuotation({ quotationData }) {
       yield put(QuotationActions.setConfirmQuotationRequestStatus(RequestStatus.ERROR));
       return;
     }
-    yield put(QuotationActions.setConfirmQuotationRequestStatus(RequestStatus.OK));
-    yield put(QuotationActions.getQuotationConfirm());
+    yield all([
+      put(QuotationActions.setConfirmQuotationRequestStatus(RequestStatus.OK)),
+      put(QuotationActions.getQuotationConfirm()),
+    ]);
   } catch (e) {
     yield put(QuotationActions.setConfirmQuotationRequestStatus(RequestStatus.ERROR));
   }

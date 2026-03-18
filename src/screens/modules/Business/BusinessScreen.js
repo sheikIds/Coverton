@@ -783,14 +783,15 @@ const BusinessScreen = props => {
         currentFilters={modalFilters}
         slideAnim={slideAnim}
       />
-      <BusinessQuotationModal
-        visible={quotationModalVisible}
-        onClose={() => setQuotationModalVisible(false)}
-        leadDataOriginal={
-          leadsData.find(lead => lead.prospectID === prospectId)
-        }
-        slideAnim={slideAnim}
-      />
+      {quotationModalVisible ?
+        <BusinessQuotationModal
+          visible={quotationModalVisible}
+          onClose={() => setQuotationModalVisible(false)}
+          leadDataOriginal={
+            leadsData.find(lead => lead.prospectID === prospectId)
+          }
+          slideAnim={slideAnim}
+        /> : null}
     </View>
   );
 };

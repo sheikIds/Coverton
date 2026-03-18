@@ -32,20 +32,20 @@ export const buildLeadPayload = ({
             boiigt.members = [
                 {
                     relationship: relationship?.id || 'self',
-                    age: age || '',
+                    age: String(age || ''),
                 },
             ];
         }
 
         if (leadData.category === CATEGORY_IDS.FLOATER) {
             boiigt.additionals = [
-                { name: 'No of Adults', value: adultCount ?? 0 },
-                { name: 'No of Child', value: childCount ?? 0 },
+                { name: 'No of Adults', value: String(adultCount ?? 0) },
+                { name: 'No of Child', value: String(childCount ?? 0) },
             ];
 
             boiigt.members = [...adultMembers, ...childMembers].map(m => ({
                 relationship: m.relationship?.id || '',
-                age: m.age || '',
+                age: String(m.age || ''),
             }));
         }
     }
@@ -53,6 +53,7 @@ export const buildLeadPayload = ({
     return {
         type: 'Consultant',
         consultant: leadData.consultant || '',
+        consultantId: leadData.consultantId || '',
         customer: leadData.customer || '',
         customerType: leadData.customerType || '',
         productId: leadData.product || '',

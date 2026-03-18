@@ -14,6 +14,7 @@ const BusinessQuotationModal = ({ visible, onClose, leadDataOriginal }) => {
     );
 
     const isLoading = quotationRequestStatus === RequestStatus.INPROGRESS;
+    const user = useSelector(state => state.auth?.user ?? null);
 
     useEffect(() => {
         if (quotationRequestStatus === RequestStatus.OK) {
@@ -24,7 +25,7 @@ const BusinessQuotationModal = ({ visible, onClose, leadDataOriginal }) => {
             }
             onClose();
             dispatch(BusinessOpportunitiesActions.setQuotationRequestStatus(RequestStatus.INITIAL));
-            dispatch(BusinessOpportunitiesActions.getLeads({ pageNumber: 1, pageSize: 10 }));
+            dispatch(BusinessOpportunitiesActions.getLeads({ pageNumber: 1, pageSize: 10, userId: user?.userId }));
         } else if (quotationRequestStatus === RequestStatus.ERROR) {
             if (Platform.OS === 'android') {
                 ToastAndroid.show('Failed to send quotation request!', ToastAndroid.SHORT);

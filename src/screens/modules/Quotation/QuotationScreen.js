@@ -31,10 +31,10 @@ const QuotationScreen = () => {
 
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const dispatch = useDispatch();
-  const quotation = useSelector(state => state.quotation?.quotations ?? []);
+  // const quotation = useSelector(state => state.quotation?.quotations ?? []);
 
-  const getQuotationsRequestStatus = useSelector(
-    state => state.quotation?.getQuotationsRequestStatus ?? 'INITIAL',
+  const confirmQuotationRequestStatus = useSelector(
+    state => state.quotation?.confirmQuotationRequestStatus ?? 'INITIAL',
   );
 
   const quotationConfirm = useSelector(state => state.quotation?.quotationConfirm ?? []);
@@ -42,7 +42,8 @@ const QuotationScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      dispatch(QuotationActions.getQuotations());
+      console.log('API Triggered')
+      // dispatch(QuotationActions.getQuotations());
       dispatch(QuotationActions.getQuotationConfirm());
 
       return () => {
@@ -52,12 +53,12 @@ const QuotationScreen = () => {
   );
 
   // counts (total counts across all quotations)
-  const pendigQuotCount = quotation.filter(
+  const pendigQuotCount = quotationConfirm.filter(
     q => q.status === 'Quotation Waiting Approval',
   ).length;
-  const approvedQuotCount = quotation.filter(q => q.status === 'approved').length;
-  const issuedQuotCount = quotation.filter(q => q.status === 'issued').length;
-  const isLoading = getQuotationsRequestStatus === RequestStatus.INPROGRESS;
+  const approvedQuotCount = quotationConfirm.filter(q => q.status === 'approved').length;
+  const issuedQuotCount = quotationConfirm.filter(q => q.status === 'issued').length;
+  const isLoading = confirmQuotationRequestStatus === RequestStatus.INPROGRESS;
 
   // map our filter keyword to actual status values in the data
   const filterStatusMap = {
@@ -83,10 +84,14 @@ const QuotationScreen = () => {
       // fields to search
       const fields = [
         item.id,
+        item.quotationId,
         item.customerName,
+        item.customer,
         item.insurerName,
+        item.businessProvider,
         item.phoneNo,
         item.productName,
+        item.productCategory,
         item.categoryName,
       ];
       return fields
@@ -95,7 +100,9 @@ const QuotationScreen = () => {
     };
 
     return q.filter(item => matchesFilter(item) && matchesSearch(item));
-  }, [quotation, searchText, selectedFilter]);
+  }, [quotationConfirm, searchText, selectedFilter]);
+
+  console.log({ filteredQuotations })
 
   const renderHeader = () => (
     <View style={styles.headerContainer}>
@@ -110,8 +117,8 @@ const QuotationScreen = () => {
         <View style={styles.titleTextContainer}>
           <Text style={styles.titleHeaderText}>Quotation Management</Text>
           <Text style={styles.subtitleText}>
-            {quotation?.length}{' '}
-            {quotation?.length === 1 ? 'quotation' : 'quotations'} available
+            {quotationConfirm?.length}{' '}
+            {quotationConfirm?.length === 1 ? 'quotation' : 'quotations'} available
           </Text>
         </View>
       </View>

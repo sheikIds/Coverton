@@ -1,5 +1,13 @@
 import * as React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Pressable, Image } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  Pressable,
+  Image,
+} from 'react-native';
 import {
   NavigationContainer,
   getFocusedRouteNameFromRoute,
@@ -19,6 +27,7 @@ import {
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import type { DrawerContentComponentProps } from '@react-navigation/drawer';
 import { useSelector, useDispatch } from 'react-redux';
+import DeviceInfo from 'react-native-device-info';
 
 import { COLOR, FONTS } from './src/utils/constants';
 import DashboardScreen from './src/screens/modules/Dashboard/DashboardScreen';
@@ -44,7 +53,7 @@ type HeaderContextType = {
 
 const HeaderContext = React.createContext<HeaderContextType>({
   headerTitle: 'Dashboard',
-  setHeaderTitle: () => { },
+  setHeaderTitle: () => {},
 });
 
 const useHeader = () => React.useContext(HeaderContext);
@@ -130,7 +139,7 @@ const BottomTabs = () => {
         },
       }}
       screenListeners={{
-        focus: (e) => {
+        focus: e => {
           // Update header title when tab gets focus
           const tabName = e.target?.split('-')[0];
           if (tabName && TAB_TITLES[tabName]) {
@@ -145,7 +154,11 @@ const BottomTabs = () => {
         options={{
           tabBarLabel: 'Dashboard',
           tabBarIcon: ({ color, size }) => (
-            <MaterialDesignIcons name="chart-box-outline" size={size || 24} color={color} />
+            <MaterialDesignIcons
+              name="chart-box-outline"
+              size={size || 24}
+              color={color}
+            />
           ),
         }}
       />
@@ -156,7 +169,11 @@ const BottomTabs = () => {
         options={{
           tabBarLabel: 'Business',
           tabBarIcon: ({ color, size }) => (
-            <MaterialDesignIcons name="bullseye" size={size || 24} color={color} />
+            <MaterialDesignIcons
+              name="bullseye"
+              size={size || 24}
+              color={color}
+            />
           ),
         }}
       />
@@ -192,7 +209,11 @@ const BottomTabs = () => {
         options={{
           tabBarLabel: 'Quotation',
           tabBarIcon: ({ color, size }) => (
-            <MaterialDesignIcons name="account-cash-outline" size={size || 24} color={color} />
+            <MaterialDesignIcons
+              name="account-cash-outline"
+              size={size || 24}
+              color={color}
+            />
           ),
         }}
       />
@@ -235,7 +256,7 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     props.navigation.closeDrawer();
     const rootScreen = TAB_ROOT_SCREENS[tabName];
 
-    console.log({ rootScreen })
+    console.log({ rootScreen });
 
     // Navigate to MainTabs -> Tabs -> specific tab
     // The MainStack structure prevents duplicate screens
@@ -280,66 +301,111 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
   const localImageSource = require('./src/assets/images/CovertonAppLogo.png');
 
   const user = useSelector((state: any) => state?.auth?.user?.userName);
-  console.log({ user })
+  const appVersion = DeviceInfo.getVersion(); // 1.0.0
+  const buildNumber = DeviceInfo.getBuildNumber(); // 1, 2, etc
 
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={styles.drawerContent}>
-      <View style={styles.drawerHeader}>
-        <View style={styles.headerTextContainer}>
-          <Image style={styles.logo} source={localImageSource} />
-        </View>
-        <TouchableOpacity onPress={() => props.navigation.closeDrawer()} style={styles.closeButton}>
-          <MaterialDesignIcons name="close" size={24} color={COLOR.PRIMARY_COLOR} />
-        </TouchableOpacity>
-      </View>
+    <DrawerContentScrollView
+      {...props}
+      contentContainerStyle={styles.drawerContent}
+    >
       <View>
-        <Text numberOfLines={1} style={styles.headerTitle}>Welcome! {`${user}`}</Text>
-      </View>
-      {drawerItems.map(item => {
-        if (item.tab === 'Logout') {
+        <View style={styles.drawerHeader}>
+          <View style={styles.headerTextContainer}>
+            <Image style={styles.logo} source={localImageSource} />
+          </View>
+          <TouchableOpacity
+            onPress={() => props.navigation.closeDrawer()}
+            style={styles.closeButton}
+          >
+            <MaterialDesignIcons
+              name="close"
+              size={24}
+              color={COLOR.PRIMARY_COLOR}
+            />
+          </TouchableOpacity>
+        </View>
+        <View>
+          <Text numberOfLines={1} style={styles.headerTitle}>
+            Welcome! {`${user}`}
+          </Text>
+        </View>
+        {drawerItems.map(item => {
+          if (item.tab === 'Logout') {
+            return (
+              <DrawerItem
+                key={item.tab}
+                label={item.label}
+                icon={({ color, size }) => (
+                  <MaterialDesignIcons
+                    name={item.icon}
+                    size={size || 24}
+                    color={color}
+                  />
+                )}
+                activeTintColor={COLOR.PRIMARY_COLOR}
+                inactiveTintColor={COLOR.PRIMARY_COLOR}
+                activeBackgroundColor={COLOR.SECONDARY_COLOR + '20'}
+                labelStyle={styles.drawerLabel}
+                style={styles.drawerItem}
+                onPress={handleLogoutPress}
+              />
+            );
+          }
           return (
             <DrawerItem
               key={item.tab}
               label={item.label}
-              icon={({ color, size }) => <MaterialDesignIcons name={item.icon} size={size || 24} color={color} />}
+              icon={({ color, size }) => (
+                <MaterialDesignIcons
+                  name={item.icon}
+                  size={size || 24}
+                  color={color}
+                />
+              )}
+              focused={activeTab === item.tab}
               activeTintColor={COLOR.PRIMARY_COLOR}
               inactiveTintColor={COLOR.PRIMARY_COLOR}
               activeBackgroundColor={COLOR.SECONDARY_COLOR + '20'}
               labelStyle={styles.drawerLabel}
               style={styles.drawerItem}
-              onPress={handleLogoutPress}
+              onPress={() => navigateToTab(item.tab)}
             />
           );
-        }
-        return (
-          <DrawerItem
-            key={item.tab}
-            label={item.label}
-            icon={({ color, size }) => <MaterialDesignIcons name={item.icon} size={size || 24} color={color} />}
-            focused={activeTab === item.tab}
-            activeTintColor={COLOR.PRIMARY_COLOR}
-            inactiveTintColor={COLOR.PRIMARY_COLOR}
-            activeBackgroundColor={COLOR.SECONDARY_COLOR + '20'}
-            labelStyle={styles.drawerLabel}
-            style={styles.drawerItem}
-            onPress={() => navigateToTab(item.tab)}
-          />
-        );
-      })}
+        })}
+      </View>
+      <View style={styles.versionContainer}>
+        <Text style={styles.versionText}>
+          Version {appVersion} - Dev
+        </Text>
+      </View>
 
       {/* Logout Confirmation */}
-      <Modal visible={showLogoutModal} transparent animationType="fade" onRequestClose={handleCancelLogout}>
+      <Modal
+        visible={showLogoutModal}
+        transparent
+        animationType="fade"
+        onRequestClose={handleCancelLogout}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Confirm Logout</Text>
-            <Text style={styles.modalMessage}>Are you sure you want to Log Out?</Text>
+            <Text style={styles.modalMessage}>
+              Are you sure you want to Log Out?
+            </Text>
 
             <View style={styles.modalButtons}>
-              <Pressable style={[styles.modalButton, styles.cancelButton]} onPress={handleCancelLogout}>
+              <Pressable
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={handleCancelLogout}
+              >
                 <Text style={styles.cancelButtonText}>No</Text>
               </Pressable>
 
-              <Pressable style={[styles.modalButton, styles.confirmButton]} onPress={handleConfirmLogout}>
+              <Pressable
+                style={[styles.modalButton, styles.confirmButton]}
+                onPress={handleConfirmLogout}
+              >
                 <Text style={styles.confirmButtonText}>Yes</Text>
               </Pressable>
             </View>
@@ -356,11 +422,7 @@ const HeaderLeftButton = ({ navigation }: { navigation: any }) => (
     onPress={() => navigation.openDrawer()}
     style={styles.headerLeftButton}
   >
-    <MaterialDesignIcons
-      name="menu-open"
-      size={26}
-      color={COLOR.WHITE_COLOR}
-    />
+    <MaterialDesignIcons name="menu-open" size={26} color={COLOR.WHITE_COLOR} />
   </TouchableOpacity>
 );
 
@@ -370,7 +432,7 @@ const AppDrawer = () => {
   return (
     <HeaderContext.Provider value={{ headerTitle, setHeaderTitle }}>
       <Drawer.Navigator
-        drawerContent={(props) => <CustomDrawerContent {...props} />}
+        drawerContent={props => <CustomDrawerContent {...props} />}
         screenOptions={{
           headerShown: true,
           headerStyle: { backgroundColor: COLOR.PRIMARY_COLOR },
@@ -424,7 +486,9 @@ const AppEntry = () => <AppDrawer />;
 
 const SessionHandler = () => {
   const dispatch = useDispatch();
-  const isSessionExpired = useSelector((state: any) => state.auth.isSessionExpired);
+  const isSessionExpired = useSelector(
+    (state: any) => state.auth.isSessionExpired,
+  );
 
   const handleClose = () => {
     dispatch(AuthActions.setSessionExpired(false));
@@ -451,7 +515,10 @@ const App = () => {
   return (
     <SafeAreaProvider>
       <NavigationContainer ref={navigationRef}>
-        <RootStack.Navigator initialRouteName="Splash" screenOptions={{ headerShown: false }}>
+        <RootStack.Navigator
+          initialRouteName="Splash"
+          screenOptions={{ headerShown: false }}
+        >
           <RootStack.Screen name="Splash" component={SplashScreen} />
           <RootStack.Screen name="Auth" component={AuthStack} />
           <RootStack.Screen name="App" component={AppEntry} />
@@ -466,7 +533,7 @@ export default App;
 
 // ---------- styles ----------
 const styles = StyleSheet.create({
-  drawerContent: { flex: 1 },
+  drawerContent: { flex: 1, justifyContent: 'space-between' },
   drawerHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -563,5 +630,17 @@ const styles = StyleSheet.create({
   headerLeftButton: {
     marginLeft: 15,
     marginRight: 10,
+  },
+  versionContainer: {
+    marginTop: 40,
+    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  versionText: {
+    fontSize: 12,
+    fontFamily: FONTS.FONT_REGULAR,
+    color: COLOR.PRIMARY_COLOR,
+    opacity: 0.5,
   },
 });

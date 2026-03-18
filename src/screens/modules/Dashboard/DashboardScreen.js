@@ -17,19 +17,10 @@ import { PolicyActions } from '../../../Redux/PolicyRedux';
 import * as RequestStatus from '../../../Entities/RequestStatus';
 import { COLOR } from '../../../utils/constants';
 
-const KPI = ({ icon, label, value, color, bg }) => (
-  <View style={[styles.kpiCard, { backgroundColor: bg || '#fff' }]}>
-    <View style={[styles.kpiIcon, { backgroundColor: color || '#eef2ff' }]}>
-      <MaterialDesignIcons name={icon} size={18} color="#fff" />
-    </View>
-    <View style={styles.kpiText}>
-      <Text numberOfLines={1} style={styles.kpiValue}>
-        {value}
-      </Text>
-      <Text numberOfLines={1} style={styles.kpiLabel}>
-        {label}
-      </Text>
-    </View>
+const Row = ({ label, value }) => (
+  <View style={styles.row}>
+    <Text style={styles.rowLabel}>{label}</Text>
+    <Text style={styles.rowValue}>{value}</Text>
   </View>
 );
 
@@ -37,7 +28,7 @@ const DashboardScreen = () => {
   const dispatch = useDispatch();
   const policy = useSelector(state => state.policy?.policy ?? {});
 
-  const getPolicyRequestStatus = useSelector(
+  const status = useSelector(
     state => state.policy?.getPolicyRequestStatus ?? 'INITIAL',
   );
 
@@ -47,91 +38,82 @@ const DashboardScreen = () => {
     }, [dispatch]),
   );
 
+  const getFinancialYear = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth(); // 0 = Jan, 3 = April
 
-  const isLoading = getPolicyRequestStatus === RequestStatus.INPROGRESS;
+    if (month >= 3) {
+      // April or later
+      return `Apr ${year} - Mar ${year + 1}`;
+    } else {
+      // Jan to March
+      return `Apr ${year - 1} - Mar ${year}`;
+    }
+  };
+
+  const getCurrentMonth = () => {
+    const date = new Date();
+    return date.toLocaleString('en-IN', { month: 'long' });
+  };
+
+  const isLoading = status === RequestStatus.INPROGRESS;
 
   const totalPremium = `₹ ${formatDecimals(policy?.totalPremium) || 0}`;
   const totalCommission = `₹ ${formatDecimals(policy?.totalCommission) || 0}`;
   const totalPolicies = `${policy?.totalPolicies ?? 0}`;
 
+  const monthlyPolicies = `${policy?.monthlyPolicies ?? 0}`;
+  const monthlyPremium = `₹ ${formatDecimals(policy?.monthlyPremium) || 0}`;
+  const monthlyCommission = `₹ ${
+    formatDecimals(policy?.monthlyCommission) || 0
+  }`;
+  const financialYear = getFinancialYear();
+  const currentMonth = getCurrentMonth();
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fafbff" />
+      <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
+
       {isLoading ? (
         <View style={styles.loaderWrap}>
           <ActivityIndicator size="large" color={COLOR.PRIMARY_COLOR} />
         </View>
       ) : (
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.contentContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* KPI Row (ideal for exactly 3 numbers from API) */}
-          {/* <View style={styles.kpiRow}>
-            <KPI
-              icon="wallet"
-              label="Net Premiums"
-              value={totalPremium}
-              color="#6366f1"
-              bg="#eef2ff"
-            />
-            <KPI
-              icon="currency-inr"
-              label="Total Brokerage"
-              value={totalCommission}
-              color="#06b6d4"
-              bg="#ecfeff"
-            />
-            <KPI
-              icon="file-document"
-              label="Total Policies"
-              value={totalPolicies}
-              color="#10b981"
-              bg="#ecfdf5"
-            />
-          </View> */}
-
-          {/* Prominent total premium card */}
-          <View style={styles.commissionCard}>
-            <View style={styles.commissionHeader}>
-              <View style={styles.iconContainer}>
-                <MaterialDesignIcons name="wallet" size={18} color="#fff" />
-              </View>
-              <Text style={styles.commissionTitle}>Total Net Premiums</Text>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.heroCard}>
+            <View style={styles.heroHeader}>
+              <MaterialDesignIcons name="wallet" size={18} color="#fff" />
+              <Text style={styles.heroTitle}>Total Premium</Text>
             </View>
 
-            <Text style={styles.commissionAmount}>{totalPremium}</Text>
-            <View style={styles.dateRangeContainer}>
-              <MaterialDesignIcons
-                name="calendar-range"
-                size={11}
-                color="#94a3b8"
-              />
-              <Text style={styles.dateRange}>Jan - Dec 2025</Text>
-            </View>
+            <Text style={styles.heroAmount}>{totalPremium}</Text>
+            <Text style={styles.heroSub}>{financialYear}</Text>
           </View>
-          {/* Target Tracker section */}
-          <View style={styles.targetSection}>
-            <View style={styles.sectionHeader}>
-              <View style={styles.sectionIconBg}>
-                <MaterialDesignIcons name="target" size={18} color="#6366f1" />
-              </View>
-              <Text style={styles.sectionTitle}>Policy Tracker</Text>
-            </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Performance</Text>
+
+            <DashboardTargetCard
+              title="Total Policies"
+              month={financialYear}
+              achievedAmount={totalPolicies}
+              isCustomer
+            />
 
             <DashboardTargetCard
               title="Total Brokerage"
-              month="2025"
+              month={financialYear}
               achievedAmount={totalCommission}
-              isCustomer={false}
             />
-            <DashboardTargetCard
-              title="Total Policies"
-              month="2025"
-              achievedAmount={totalPolicies}
-              isCustomer={true}
-            />
+          </View>
+          {/* 🔷 MONTHLY */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>{currentMonth} Month</Text>
+
+            <Row label="Policies" value={monthlyPolicies} />
+            <Row label="Premium" value={monthlyPremium} />
+            <Row label="Brokerage" value={monthlyCommission} />
           </View>
         </ScrollView>
       )}
@@ -144,124 +126,78 @@ export default DashboardScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fafbff'
+    backgroundColor: '#f8fafc',
   },
-  scrollView: {
-    flex: 1
-  },
-  contentContainer: {
-    paddingVertical: 12
-  },
+
   loaderWrap: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
-  },
-  kpiRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginHorizontal: 16,
-    marginTop: 12,
-  },
-  kpiCard: {
-    flex: 1,
-    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginHorizontal: 4,
-    elevation: 1,
-    borderWidth: 1,
-    borderColor: '#f1f5f9',
   },
-  kpiIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  kpiText: {
-    flex: 1
-  },
-  kpiValue: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#0f172a'
-  },
-  kpiLabel: {
-    fontSize: 11,
-    color: '#64748b',
-    marginTop: 2
-  },
-  commissionCard: {
-    marginHorizontal: 16,
-    marginTop: 12,
-    padding: 14,
-    borderRadius: 16,
-    backgroundColor: '#fff',
-    elevation: 2,
-    shadowColor: '#64748b',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 6,
-    borderWidth: 1,
-    borderColor: '#f1f5f9',
-  },
-  commissionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  iconContainer: {
-    padding: 8,
-    borderRadius: 10,
+
+  /* 🔷 HERO */
+  heroCard: {
+    margin: 16,
+    padding: 18,
+    borderRadius: 18,
     backgroundColor: '#6366f1',
-    marginRight: 10,
   },
-  commissionTitle: {
+
+  heroHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+
+  heroTitle: {
+    color: '#e0e7ff',
     fontSize: 13,
-    color: '#64748b',
-    flex: 1,
+    marginLeft: 6,
     fontWeight: '600',
   },
-  commissionAmount: {
-    fontSize: 26,
+
+  heroAmount: {
+    fontSize: 30,
     fontWeight: '800',
-    color: '#111827',
+    color: '#fff',
+  },
+
+  heroSub: {
+    fontSize: 11,
+    color: '#c7d2fe',
+    marginTop: 4,
+  },
+
+  /* 🔷 SECTIONS */
+  section: {
+    marginTop: 10,
+    paddingHorizontal: 16,
+  },
+
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0f172a',
     marginBottom: 8,
   },
-  dateRangeContainer: {
+
+  /* 🔷 ROW */
+  row: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6
+    justifyContent: 'space-between',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eef2f7',
   },
-  dateRange: {
-    fontSize: 11,
-    color: '#94a3b8',
-    fontWeight: '500'
+
+  rowLabel: {
+    fontSize: 14,
+    color: '#475569',
   },
-  targetSection: {
-    paddingHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 20
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    gap: 10,
-  },
-  sectionIconBg: {
-    backgroundColor: '#f1f5f9',
-    padding: 8,
-    borderRadius: 12
-  },
-  sectionTitle: {
-    fontSize: 16,
+
+  rowValue: {
+    fontSize: 14,
     fontWeight: '700',
-    color: '#0f172a'
+    color: '#0f172a',
   },
 });

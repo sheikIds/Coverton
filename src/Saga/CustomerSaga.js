@@ -65,7 +65,8 @@ export function* getCustomers() {
 
 export function* getCustomerById({ insurerId }) {
   try {
-    const response = yield call(CustomerAPI.getCustomerFields, { insurerId });
+    const response = yield call(CustomerAPI.getCustomerById, { insurerId });
+    console.log({ sagaRes: response })
 
     if (response?.err) {
       yield put(

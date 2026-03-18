@@ -279,15 +279,14 @@ const QuotationModal = ({
     }
   }, [companies]);
 
-  // Close confirm modal on success
+  // Close both modals on confirm success
   useEffect(() => {
     if (confirmQuotationRequestStatus === RequestStatus.OK && confirmModalVisible) {
       setConfirmModalVisible(false);
-      // Refetch preferred quotation data after successful confirmation
-      const prospectId = selectedQuotation?.prospectId;
-      if (prospectId) {
-        dispatch(QuotationActions.getPreferredQuotation(prospectId));
-      }
+      // Reset status so it doesn't re-trigger on next open
+      dispatch(QuotationActions.setConfirmQuotationRequestStatus(RequestStatus.INITIAL));
+      // Close the parent QuotationModal (animates out and returns to list screen)
+      if (typeof closeModal === 'function') closeModal();
     }
   }, [confirmQuotationRequestStatus]);
 

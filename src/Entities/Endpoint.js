@@ -1,22 +1,23 @@
 export const BASE = 'api/'
-// export const BASE_ENDPOINT = 'https://cibs.coverton.in/'
-// export const BASE_ENDPOINT = 'https://cibs-dev.coverton.in'
-export const BASE_ENDPOINT = 'http://10.0.2.2:5030/'
+export const BASE_ENDPOINT = 'https://cibs-dev.coverton.in' // Dev
+// export const BASE_ENDPOINT = 'https://ibs-backend.coverton.in/' // UAT
+// export const BASE_ENDPOINT = 'http://10.0.2.2:5030/'
 
 // Business Opportunities Endpoints
 export const GET_PRODUCT = BASE + 'BOI/Products'
 export const GET_CATEGORY = BASE + 'BOI/Category'
 export const GET_LEAD = BASE + 'BOI/getLead'
 export const GET_CUSTOMERS_NAME = BASE + 'BOI/Customers'
-export const CREATE_LEAD = BASE + 'BOI'
-export const UPDATE_LEAD = BASE + 'BOI'
+export const CREATE_LEAD = BASE + 'BOI/createLead'
+export const UPDATE_LEAD = BASE + 'BOI/editLead'
 export const GET_PREFERRED_INSURERS = BASE + 'BOI/preferredinsurers'
 export const QUOTATION_REQUEST = BASE + 'BOI/quotationrequest'
+export const GET_BUSINESS_PROVIDER = BASE + 'BOI/businessprovider'
 
 // Customers Endpoints
 export const GET_CUSTOMER_FIELDS = BASE + 'Customer/Fields'
 export const GET_CUSTOMERS = BASE + 'Customer'
-export const GET_CUSTOMER_BY_ID = BASE + 'Customer/GetById'
+export const GET_CUSTOMER_BY_ID = BASE + 'BOI/GetById'
 export const CREATE_CUSTOMER = BASE + 'Customer'
 export const GET_CUSTOMER_FIRST_LEVEL = BASE + 'Customer/CustomerFirstLevel'
 export const GET_CUSTOMER_SECOND_LEVEL = BASE + 'Customer/CustomerSecondLevel'

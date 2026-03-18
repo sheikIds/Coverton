@@ -37,14 +37,18 @@ export const getCustomers = async () => {
 };
 
 export const getCustomerById = async ({ insurerId }) => {
+  console.log({ api: insurerId })
   try {
-    const response = await api.get(Endpoints.GET_CUSTOMER_BY_ID, {
-      params: { id: insurerId },
-    });
-
+    const response = await api.get(
+      Endpoints.GET_CUSTOMER_BY_ID,
+      {
+        params: { id: insurerId },
+      }
+    );
     return response.data;
   } catch (error) {
-    console.error('API Error:', error?.response?.data || error);
+    console.log({ error, insurerId })
+    console.error('API Error getCustomerById:', error?.response?.data || error);
     throw error?.response?.data || error;
   }
 };
