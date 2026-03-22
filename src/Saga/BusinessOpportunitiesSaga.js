@@ -132,3 +132,25 @@ export function* quotationRequest({ prospectId }) {
     ])
   }
 }
+
+export function* getAllCustomers() {
+  try {
+    const response = yield call(BusinessOpportunitiesAPI.getAllCustomers);
+    console.log({ sagaResponse: response });
+    
+    if (response?.err) {
+      yield put(BusinessOpportunitiesActions.setAllCustomersRequestStatus(RequestStatus.ERROR));
+      return;
+    }
+
+    const allCustomers = response.data ?? response ?? [];
+    
+    yield all([
+      put(BusinessOpportunitiesActions.setAllCustomersRequestStatus(RequestStatus.OK)),
+      put(BusinessOpportunitiesActions.storeAllCustomers(allCustomers))
+    ]);
+  } catch (error) {
+    console.error('getAllCustomers saga error:', error);
+    yield put(BusinessOpportunitiesActions.setAllCustomersRequestStatus(RequestStatus.ERROR));
+  }
+}

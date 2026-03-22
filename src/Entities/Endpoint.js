@@ -1,7 +1,7 @@
 export const BASE = 'api/'
-export const BASE_ENDPOINT = 'https://cibs-dev.coverton.in' // Dev
+// export const BASE_ENDPOINT = 'https://cibs-dev.coverton.in' // Dev
 // export const BASE_ENDPOINT = 'https://ibs-backend.coverton.in/' // UAT
-// export const BASE_ENDPOINT = 'http://10.0.2.2:5030/'
+export const BASE_ENDPOINT = 'http://10.0.2.2:5030/'
 
 // Business Opportunities Endpoints
 export const GET_PRODUCT = BASE + 'BOI/Products'
@@ -13,6 +13,7 @@ export const UPDATE_LEAD = BASE + 'BOI/editLead'
 export const GET_PREFERRED_INSURERS = BASE + 'BOI/preferredinsurers'
 export const QUOTATION_REQUEST = BASE + 'BOI/quotationrequest'
 export const GET_BUSINESS_PROVIDER = BASE + 'BOI/businessprovider'
+export const ALL_CUSTOMERS = BASE + 'BOI/AllCustomers'
 
 // Customers Endpoints
 export const GET_CUSTOMER_FIELDS = BASE + 'Customer/Fields'

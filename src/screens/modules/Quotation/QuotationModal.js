@@ -407,21 +407,21 @@ const QuotationModal = ({
 
                   <View style={[styles.rowSpaceBetween, { marginTop: 12 }]}>
                     <View style={styles.chip}>
-                      <MaterialDesignIcons
+                      {/* <MaterialDesignIcons
                         name="car-info"
                         size={14}
                         color={COLOR.PRIMARY_COLOR}
-                      />
+                      /> */}
                       <Text style={styles.chipText}>
                         {quotation?.productType ?? quotation?.productName ?? '—'}
                       </Text>
                     </View>
                     <View style={styles.chipSecondary}>
-                      <MaterialDesignIcons
+                      {/* <MaterialDesignIcons
                         name="bike"
                         size={14}
                         color="#4B5563"
-                      />
+                      /> */}
                       <Text style={styles.chipSecondaryText}>
                         {quotation?.categoryType ??
                           quotation?.categoryName ??

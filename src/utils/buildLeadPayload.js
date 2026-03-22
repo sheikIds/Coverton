@@ -8,10 +8,13 @@ export const buildLeadPayload = ({
     childCount = null,
     relationship = null,
     age = '',
+    user
 }) => {
     const preferred = (leadData.preferredInsuranceCompanies || []).map(c => ({
         id: c.id,
     }));
+
+    console.log({leadData, adultMembers, adultCount, childMembers, childCount, relationship, age, user})
 
     const boiigt = {
         productId: leadData.product || 0,
@@ -29,12 +32,14 @@ export const buildLeadPayload = ({
     if (leadData.product === PRODUCT_IDS.HEALTH) {
 
         if (leadData.category === CATEGORY_IDS.INDIVIDUAL) {
-            boiigt.members = [
-                {
-                    relationship: relationship?.id || 'self',
-                    age: String(age || ''),
-                },
+            boiigt.additionals = [
+                { name: 'No of Adults', value: String(1 ?? 0) },
             ];
+
+            boiigt.members = [{
+                relationship: relationship?.id || 'self',
+                age: String(age),
+            }]
         }
 
         if (leadData.category === CATEGORY_IDS.FLOATER) {
@@ -51,7 +56,7 @@ export const buildLeadPayload = ({
     }
 
     return {
-        type: 'Consultant',
+        type: user?.role || '',
         consultant: leadData.consultant || '',
         consultantId: leadData.consultantId || '',
         customer: leadData.customer || '',

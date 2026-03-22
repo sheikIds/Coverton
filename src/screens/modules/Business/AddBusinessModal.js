@@ -23,6 +23,7 @@ import MemberCard from '../../components/MemberCard';
 import {
   COLOR,
   PRODUCT_IDS,
+  CATEGORY_IDS,
   RELATIONSHIPS,
   CONDITIONAL_FORM_SECTIONS,
   ADULT_RELATIONSHIPS,
@@ -104,13 +105,19 @@ const AddBusinessModal = props => {
     state => state.businessOpportunities?.updateLeadRequestStatus,
   );
   const customers = useSelector(
-    state => state?.customer?.customersName ?? [],
+    state => state?.businessOpportunities?.allCustomers ?? [],
+  );
+
+  const allCustomers = useSelector(
+    state => state?.businessOpportunities?.allCustomers ?? [],
   );
   const user = useSelector(state => state.auth?.user ?? null);
   const customerById = useSelector(state => state?.customer?.customerById ?? null);
   const customerByIdRequestStatus = useSelector(
     state => state?.customer?.getCustomerByIdRequestStatus,
   );
+
+  console.log({user, allCustomers, productsCategories})
 
   // Fetch customer data by prospectId when opening in edit mode
   useEffect(() => {
@@ -225,6 +232,62 @@ const AddBusinessModal = props => {
         directExpenditure: data.directExpenditure || 0,
         vehicleNumber,
       }));
+      // Motor: prepopulate vehicle Number
+      if (data.productId === PRODUCT_IDS.MOTOR) {
+        console.log({ data, obj: data?.boiIgt?.additionals?.find(a => a.name == "Vehicle Number") });
+
+        const vehicleNumber =
+          data?.boiIgt?.additionals?.find(a => a.name == "Vehicle Number")?.value ||
+          '';
+
+          console.log({leadData, vehicleNumber})
+        if (vehicleNumber) {
+          setLeadData(prev => ({
+            ...prev,
+            vehicleNumber,
+          }));
+        }
+      }
+      // Health Individual: prepopulate relationship & age
+      if (data.productId === PRODUCT_IDS.HEALTH && data.categoryId === CATEGORY_IDS.INDIVIDUAL) {
+        const member = data.boiIgt?.members?.[0];
+        if (member) {
+          const matchedRel = RELATIONSHIPS.find(r => r.id === member.relationship) || RELATIONSHIPS[0];
+          setRelationship(matchedRel);
+          setAge(String(member.age || ''));
+        }
+      }
+
+      // Health Floater: prepopulate adult/child counts and member details
+      if (data.productId === PRODUCT_IDS.HEALTH && data.categoryId === CATEGORY_IDS.FLOATER) {
+        const adults = Number(data.boiIgt?.additionals?.find(a => a.name === 'No of Adults')?.value) || 0;
+        const children = Number(data.boiIgt?.additionals?.find(a => a.name === 'No of Child')?.value) || 0;
+        setAdultCount(adults);
+        setChildCount(children);
+
+        const allMembers = data.boiIgt?.members || [];
+        const restoredAdults = [];
+        const restoredChildren = [];
+
+        allMembers.forEach(m => {
+          const relId = m.relationship || '';
+          const isChild = CHILD_RELATIONSHIPS.some(r => r.id === relId);
+          const pool = isChild ? CHILD_RELATIONSHIPS : ADULT_RELATIONSHIPS;
+          const matched = pool.find(r => r.id === relId) || null;
+
+          const entry = {
+            id: (isChild ? restoredChildren.length : restoredAdults.length) + 1,
+            relationship: matched,
+            age: String(m.age || ''),
+          };
+
+          if (isChild) restoredChildren.push(entry);
+          else restoredAdults.push(entry);
+        });
+
+        setAdultMembers(restoredAdults);
+        setChildMembers(restoredChildren);
+      }
 
       setShowCreateCustomer(false);
     }
@@ -255,6 +318,7 @@ const AddBusinessModal = props => {
   useEffect(() => {
     dispatch(BusinessOpportunitiesActions.getProducts());
     dispatch(BusinessOpportunitiesActions.getCategories());
+    dispatch(BusinessOpportunitiesActions.getAllCustomers());
   }, [dispatch]);
 
   useEffect(() => {
@@ -436,6 +500,7 @@ const AddBusinessModal = props => {
         childCount,
         relationship,
         age,
+        user
       });
 
       console.log({ payload, leadData })
@@ -633,8 +698,16 @@ const AddBusinessModal = props => {
                     setLeadData(prev => ({
                       ...prev,
                       product: item.id,
-                      vehicleNumber: item.id === 2 ? prev.vehicleNumber : ''
+                      vehicleNumber: item.id === PRODUCT_IDS.MOTOR ? prev.vehicleNumber : '',
                     }));
+                    // Reset Health-specific states when product changes
+                    setRelationship(RELATIONSHIPS[0]);
+                    setAge('');
+                    setAdultCount(null);
+                    setChildCount(null);
+                    setAdultMembers([]);
+                    setChildMembers([]);
+                    setMemberAgeErrors({ adult: {}, child: {} });
                   }}
                   field={''}
                   showLabel={false}
@@ -655,8 +728,16 @@ const AddBusinessModal = props => {
                     setLeadData(prev => ({
                       ...prev,
                       category: item.id,
-                      preferredInsuranceCompanies: []
+                      preferredInsuranceCompanies: [],
                     }));
+                    // Reset Health-specific states when category changes
+                    setRelationship(RELATIONSHIPS[0]);
+                    setAge('');
+                    setAdultCount(null);
+                    setChildCount(null);
+                    setAdultMembers([]);
+                    setChildMembers([]);
+                    setMemberAgeErrors({ adult: {}, child: {} });
                   }}
                   field={''}
                   showLabel={false}

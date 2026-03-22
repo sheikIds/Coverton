@@ -211,7 +211,7 @@ export const ADULT_COUNT_OPTIONS = [1, 2, 3, 4, 5, 6].map(n => ({
 }));
 
 /** Dropdown options: how many children (0–4) */
-export const CHILDREN_COUNT_OPTIONS = [0, 1, 2, 3, 4].map(n => ({
+export const CHILDREN_COUNT_OPTIONS = [1, 2, 3, 4].map(n => ({
   id: n,
   label: String(n),
   value: String(n),

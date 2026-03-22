@@ -31,6 +31,7 @@ const DashboardScreen = () => {
   const status = useSelector(
     state => state.policy?.getPolicyRequestStatus ?? 'INITIAL',
   );
+  console.log({ policy, status })
 
   useFocusEffect(
     useCallback(() => {

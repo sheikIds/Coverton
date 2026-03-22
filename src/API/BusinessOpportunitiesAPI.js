@@ -97,3 +97,13 @@ export const getBusinessProvider = async () => {
     throw error?.response?.data || error;
   }
 };
+
+export const getAllCustomers = async () => {
+  try {
+    const response = await api.get(Endpoints.ALL_CUSTOMERS);
+    return response.data;
+  } catch (error) {
+    console.log('API Error:', error?.response?.data || error.message);
+    throw error?.response?.data || error;
+  }
+};

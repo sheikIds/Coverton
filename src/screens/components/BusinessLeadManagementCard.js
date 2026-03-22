@@ -22,6 +22,7 @@ const BusinessLeadManagementCard = props => {
     }
   };
   const leadTemp = getLeadTemperature(leadData?.timeByWhen);
+  console.log({leadData})
 
   return (
     <View style={styles.cardContainer}>
@@ -41,7 +42,7 @@ const BusinessLeadManagementCard = props => {
             <Text style={styles.badgeText}>{leadData.customerType}</Text>
           </View>
         </View>
-        {!(leadData?.leadStatus === 'BOI Created') ? <TouchableOpacity activeOpacity={0.7}>
+        {!(leadData?.stage === 'BOI Created') ? <TouchableOpacity activeOpacity={0.7}>
           <MaterialDesignIcons
             name="check-circle-outline"
             size={22}
