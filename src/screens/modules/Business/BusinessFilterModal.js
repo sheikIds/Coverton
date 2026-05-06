@@ -158,7 +158,7 @@ const BusinessFilterModal = ({ visible, onClose, onApply, currentFilters, slideA
                                     propContainerStyle={styles.dropdownContainer}
                                 />
                             </View>
-                            <View style={styles.colHalf}>
+                            {/* <View style={styles.colHalf}>
                                 <Text style={styles.formLabel}>LEAD PROVIDER</Text>
                                 <View style={styles.inputContainer}>
                                     <TextInput
@@ -169,11 +169,11 @@ const BusinessFilterModal = ({ visible, onClose, onApply, currentFilters, slideA
                                         placeholderTextColor="#9CA3AF"
                                     />
                                 </View>
-                            </View>
+                            </View> */}
                         </View>
 
                         {/* Row 2 */}
-                        <View style={styles.row}>
+                        {/* <View style={styles.row}>
                             <View style={styles.colHalf}>
                                 <Text style={styles.formLabel}>CUSTOMER ID</Text>
                                 <View style={styles.inputContainer}>
@@ -199,26 +199,26 @@ const BusinessFilterModal = ({ visible, onClose, onApply, currentFilters, slideA
                                     propContainerStyle={styles.dropdownContainer}
                                 />
                             </View>
-                        </View>
+                        </View> */}
 
                         {/* Row 3 - Business Type */}
                         <View style={styles.formGroup}>
                             <View style={styles.businessTypeContainer}>
                                 <Text style={styles.formLabel}>BUSINESS TYPE</Text>
                                 <View style={styles.radioGroup}>
-                                    {BUSINESS_TYPES.map(type => (
+                                    {CUSTOMER_TYPES.map(type => (
                                         <TouchableOpacity
-                                            key={type}
+                                            key={type?.id}
                                             style={styles.radioButton}
-                                            onPress={() => updateFilter('businessType', type)}
+                                            onPress={() => updateFilter('customerType', type?.id)}
                                         >
                                             <MaterialDesignIcons
-                                                name={filters.businessType === type ? 'radiobox-marked' : 'radiobox-blank'}
+                                                name={filters.customerType === type.label ? 'radiobox-marked' : 'radiobox-blank'}
                                                 size={20}
-                                                color={filters.businessType === type ? COLOR.PRIMARY_COLOR : '#9CA3AF'}
+                                                color={filters.customerType === type.label ? COLOR.PRIMARY_COLOR : '#9CA3AF'}
                                             />
-                                            <Text style={[styles.radioLabel, filters.businessType === type && styles.radioLabelSelected]}>
-                                                {type === 'ALL' ? 'All' : type}
+                                            <Text style={[styles.radioLabel, filters.customerType === type.label && styles.radioLabelSelected]}>
+                                                {type.label === 'ALL' ? 'All' : type.label}
                                             </Text>
                                         </TouchableOpacity>
                                     ))}

@@ -1,7 +1,7 @@
 export const BASE = 'api/'
 // export const BASE_ENDPOINT = 'https://cibs-dev.coverton.in' // Dev
-// export const BASE_ENDPOINT = 'https://ibs-backend.coverton.in/' // UAT
-export const BASE_ENDPOINT = 'http://10.0.2.2:5030/'
+export const BASE_ENDPOINT = 'https://ibs-backend.coverton.in/' // UAT
+// export const BASE_ENDPOINT = 'http://10.0.2.2:5030/'
 
 // Business Opportunities Endpoints
 export const GET_PRODUCT = BASE + 'BOI/Products'
@@ -10,10 +10,11 @@ export const GET_LEAD = BASE + 'BOI/getLead'
 export const GET_CUSTOMERS_NAME = BASE + 'BOI/Customers'
 export const CREATE_LEAD = BASE + 'BOI/createLead'
 export const UPDATE_LEAD = BASE + 'BOI/editLead'
-export const GET_PREFERRED_INSURERS = BASE + 'BOI/preferredinsurers'
+export const GET_PREFERRED_INSURERS = BASE  + 'BOI/preferredinsurers'
 export const QUOTATION_REQUEST = BASE + 'BOI/quotationrequest'
 export const GET_BUSINESS_PROVIDER = BASE + 'BOI/businessprovider'
 export const ALL_CUSTOMERS = BASE + 'BOI/AllCustomers'
+export const GET_BOI_BY_ID = BASE + 'BOI/GetById'
 
 // Customers Endpoints
 export const GET_CUSTOMER_FIELDS = BASE + 'Customer/Fields'
@@ -38,6 +39,14 @@ export const GET_QUOTATION_BY_ID = BASE + 'Quotation/view-quotation'
 export const GET_QUOTATION_MANAGEMENT = BASE + 'BOI/quotationmanagement'
 export const GET_PREFERRED_QUOTATION = BASE + 'BOI/preferredquotation'
 export const CONFIRM_QUOTATION = BASE + 'BOI/confirmquotation'
+export const VIEW_QUOTATION = BASE + 'BOI/quotationview' 
+export const QUOTATION_DOCUMENT_DETAILS = BASE + 'BOI/quotationdocumentdetails'
 
 // Policy Endpoints
 export const GET_POLICY = BASE + 'Policy/Dashboard'
+
+// Renewals
+export const GET_RENEWAL = BASE + 'Policy/getrenewal'
+export const RENEWAL_REASONS = BASE + 'Policy/renewalreasons'
+export const CREATE_RENEW = BASE + 'Policy/renew'
+export const RENEWAL_LOST_DROPPED = BASE + 'Policy/lostdropped'

@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import React from 'react';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
-import { COLOR } from '../../utils/constants';
+import { COLOR, FONTS } from '../../utils/constants';
 
 const CustomInput = props => {
   const { placeholder, value, setValue, addNew, disabled } = props;
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: FONTS.FONT_REGULAR,
     fontSize: 12,
     color: '#1A1A1A',
     paddingVertical: 10,

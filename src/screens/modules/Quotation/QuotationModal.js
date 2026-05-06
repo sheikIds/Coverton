@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { COLOR } from '../../../utils/constants';
+import { COLOR, FONTS } from '../../../utils/constants';
 import { QuotationActions } from '../../../Redux/QuotationRedux';
 import * as RequestStatus from '../../../Entities/RequestStatus';
 import ReactNativeBlobUtil from 'react-native-blob-util';
@@ -128,6 +128,53 @@ const openMimeDocument = async (mimeData, filenameHint = 'document') => {
   }
 };
 
+const downloadToLocal = async (mimeData, filenameHint = 'document') => {
+  if (!mimeData || typeof mimeData !== 'string' || mimeData.length < 20) {
+    Alert.alert('No Document', 'The document is not available.');
+    return;
+  }
+  const info = detectMimeInfo(mimeData);
+  if (!info) {
+    Alert.alert('Unsupported Format', 'Cannot determine the file type.');
+    return;
+  }
+  const base64Content = stripDataPrefix(mimeData);
+  const safeName = filenameHint.replace(/[^a-zA-Z0-9]/g, '_');
+  const downloadDir = Platform.OS === 'android'
+    ? ReactNativeBlobUtil.fs.dirs.DownloadDir
+    : ReactNativeBlobUtil.fs.dirs.DocumentDir;
+  const fileName = `${safeName}_${Date.now()}.${info.ext}`;
+  const filePath = `${downloadDir}/${fileName}`;
+
+  try {
+    await ReactNativeBlobUtil.fs.writeFile(filePath, base64Content, 'base64');
+
+    if (Platform.OS === 'android') {
+      try {
+        await ReactNativeBlobUtil.MediaCollection.copyToMediaStore(
+          {
+            name: fileName,
+            parentFolder: '',
+            mimeType: info.mime,
+          },
+          'Download',
+          filePath,
+        );
+      } catch (_) {
+        // Fallback — file is already saved in DownloadDir
+      }
+    }
+
+    Alert.alert(
+      'Download Complete',
+      `File saved to ${Platform.OS === 'android' ? 'Downloads' : 'Documents'}/${fileName}`,
+    );
+  } catch (err) {
+    console.warn('downloadToLocal error', err);
+    Alert.alert('Error', 'Failed to download the document. Please try again.');
+  }
+};
+
 const QuotationModalShimmer = () => (
   <View style={shimmerStyles.wrapper}>
     <View style={shimmerStyles.card}>
@@ -208,7 +255,7 @@ const shimmerStyles = StyleSheet.create({
   },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   valuesRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 },
+  divider: { height: 1, marginVertical: 12 },
   smallLine: { width: 90, height: 10, borderRadius: 4 },
   tinyLine: { width: 60, height: 8, borderRadius: 4 },
   mediumLine: { width: 140, height: 14, borderRadius: 4 },
@@ -360,7 +407,7 @@ const QuotationModal = ({
                 size={24}
                 color={COLOR.PRIMARY_COLOR}
               />
-              <Text style={styles.modalTitle}>Quotation Details</Text>
+              <Text style={styles.modalTitle}>Confirm Quotation</Text>
             </View>
             <TouchableOpacity
               onPress={handleModalClose}
@@ -534,23 +581,42 @@ const QuotationModal = ({
 
                       {/* Document view/download button */}
                       {hasDocument && (
-                        <TouchableOpacity
-                          style={styles.docButton}
-                          activeOpacity={0.7}
-                          onPress={() =>
-                            openMimeDocument(
-                              company.quotationDocument,
-                              company?.name ?? 'QuotationDoc',
-                            )
-                          }
-                        >
-                          <MaterialDesignIcons
-                            name="file-download-outline"
-                            size={16}
-                            color={COLOR.PRIMARY_COLOR}
-                          />
-                          <Text style={styles.docButtonText}>View Document</Text>
-                        </TouchableOpacity>
+                        <View style={styles.docActions}>
+                          <TouchableOpacity
+                            style={styles.docButton}
+                            activeOpacity={0.7}
+                            onPress={() =>
+                              openMimeDocument(
+                                company.quotationDocument,
+                                company?.name ?? 'QuotationDoc',
+                              )
+                            }
+                          >
+                            <MaterialDesignIcons
+                              name="eye-outline"
+                              size={16}
+                              color={COLOR.PRIMARY_COLOR}
+                            />
+                            <Text style={styles.docButtonText}>View</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={styles.docButton}
+                            activeOpacity={0.7}
+                            onPress={() =>
+                              downloadToLocal(
+                                company.quotationDocument,
+                                company?.name ?? 'QuotationDoc',
+                              )
+                            }
+                          >
+                            <MaterialDesignIcons
+                              name="download-outline"
+                              size={16}
+                              color={COLOR.PRIMARY_COLOR}
+                            />
+                            <Text style={styles.docButtonText}>Download</Text>
+                          </TouchableOpacity>
+                        </View>
                       )}
                     </View>
                   );
@@ -573,25 +639,42 @@ const QuotationModal = ({
                           </Text>
                         </View>
                       </View>
-                      <TouchableOpacity
-                        style={styles.docButton}
-                        activeOpacity={0.7}
-                        onPress={() =>
-                          openMimeDocument(
-                            quotation.comparisonQuote,
-                            'ComparisonQuote',
-                          )
-                        }
-                      >
-                        <MaterialDesignIcons
-                          name="file-download-outline"
-                          size={16}
-                          color={COLOR.PRIMARY_COLOR}
-                        />
-                        <Text style={styles.docButtonText}>
-                          Download & View
-                        </Text>
-                      </TouchableOpacity>
+                      <View style={styles.docActions}>
+                        <TouchableOpacity
+                          style={styles.docButton}
+                          activeOpacity={0.7}
+                          onPress={() =>
+                            openMimeDocument(
+                              quotation.comparisonQuote,
+                              'ComparisonQuote',
+                            )
+                          }
+                        >
+                          <MaterialDesignIcons
+                            name="eye-outline"
+                            size={16}
+                            color={COLOR.PRIMARY_COLOR}
+                          />
+                          <Text style={styles.docButtonText}>View</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.docButton}
+                          activeOpacity={0.7}
+                          onPress={() =>
+                            downloadToLocal(
+                              quotation.comparisonQuote,
+                              'ComparisonQuote',
+                            )
+                          }
+                        >
+                          <MaterialDesignIcons
+                            name="download-outline"
+                            size={16}
+                            color={COLOR.PRIMARY_COLOR}
+                          />
+                          <Text style={styles.docButtonText}>Download</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
                   )}
 
@@ -724,7 +807,7 @@ const styles = StyleSheet.create({
   },
   modalTitleRow: { flexDirection: 'row', alignItems: 'center' },
   modalTitle: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
     fontSize: 20,
     color: '#111827',
     marginLeft: 10,
@@ -758,20 +841,20 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#9CA3AF',
     marginBottom: 2,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: FONTS.FONT_REGULAR,
   },
   smallLabel: {
     fontSize: 10,
     color: '#9CA3AF',
     marginBottom: 2,
-    fontFamily: 'Poppins-Regular',
+    fontFamily: FONTS.FONT_REGULAR,
   },
   valuePrimary: {
     fontSize: 15,
     color: '#111827',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
   },
-  value: { fontSize: 13, color: '#111827', fontFamily: 'Poppins-Medium' },
+  value: { fontSize: 13, color: '#111827', fontFamily: FONTS.FONT_MEDIUM },
   infoBlock: { flex: 1, marginRight: 12 },
   statusPill: {
     flexDirection: 'row',
@@ -785,10 +868,13 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontSize: 11,
     color: COLOR.PRIMARY_COLOR,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: FONTS.FONT_MEDIUM,
   },
-  divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 12 },
-
+  divider: { 
+    height: 1,
+    // backgroundColor: '#F3F4F6',
+    marginVertical: 12 
+  },
   chip: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -801,7 +887,7 @@ const styles = StyleSheet.create({
     marginLeft: 6,
     fontSize: 12,
     color: COLOR.PRIMARY_COLOR,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: FONTS.FONT_MEDIUM,
   },
   chipSecondary: {
     flexDirection: 'row',
@@ -816,7 +902,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     color: '#6B7280',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
     marginBottom: 8,
     marginTop: 4,
   },
@@ -837,7 +923,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 14,
     color: '#111827',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
   },
   checkboxRow: {
     flexDirection: 'row',
@@ -849,7 +935,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     backgroundColor: COLOR.PRIMARY_COLOR,
   },
-  selectedBadgeText: { fontSize: 10, color: '#FFFFFF', fontFamily: 'Poppins-Medium' },
+  selectedBadgeText: { fontSize: 10, color: '#FFFFFF', fontFamily: FONTS.FONT_MEDIUM },
 
   companyValuesRow: {
     flexDirection: 'row',
@@ -860,14 +946,19 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
   },
-  moneyText: { fontSize: 13, fontFamily: 'Poppins-Medium', color: '#111827' },
+  moneyText: { fontSize: 13, fontFamily: FONTS.FONT_MEDIUM, color: '#111827' },
   moneyTextHighlight: {
     fontSize: 13,
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
     color: COLOR.PRIMARY_COLOR,
   },
 
   // Document button
+  docActions: {
+    flexDirection: 'row',
+    marginTop: 10,
+    gap: 10,
+  },
   docButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -876,13 +967,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 8,
-    marginTop: 10,
   },
   docButtonText: {
     marginLeft: 6,
     fontSize: 12,
     color: COLOR.PRIMARY_COLOR,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: FONTS.FONT_MEDIUM,
   },
 
   // Comparison quote card
@@ -900,7 +990,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 14,
     color: '#374151',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
   },
 
   // Bottom bar
@@ -925,7 +1015,7 @@ const styles = StyleSheet.create({
   cancelBtnText: {
     fontSize: 14,
     color: '#6B7280',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
   },
   activeBtn: {
     flex: 1.5,
@@ -943,7 +1033,7 @@ const styles = StyleSheet.create({
   activeBtnText: {
     fontSize: 14,
     color: '#FFFFFF',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
   },
 
   // Confirmation modal
@@ -967,14 +1057,14 @@ const styles = StyleSheet.create({
   confirmTitle: {
     fontSize: 18,
     color: '#111827',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
     textAlign: 'center',
     marginBottom: 8,
   },
   confirmMessage: {
     fontSize: 13,
     color: '#6B7280',
-    fontFamily: 'Poppins-Regular',
+    fontFamily: FONTS.FONT_REGULAR,
     textAlign: 'center',
     marginBottom: 20,
     lineHeight: 20,
@@ -994,7 +1084,7 @@ const styles = StyleSheet.create({
   confirmNoBtnText: {
     fontSize: 14,
     color: '#6B7280',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
   },
   confirmYesBtn: {
     flex: 1,
@@ -1006,7 +1096,7 @@ const styles = StyleSheet.create({
   confirmYesBtnText: {
     fontSize: 14,
     color: '#FFFFFF',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
   },
 
   emptyState: { padding: 16, alignItems: 'center' },

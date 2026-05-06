@@ -34,6 +34,7 @@ export const getInsuranceCompanies = async (categoryId) => {
   }
 };
 export const getLeads = async (params) => {
+  console.log({params})
   try {
     // This will call GET: http://10.0.2.2:5030/api/BOI/getLead
     const response = await api.get(Endpoints.GET_LEAD, { params });
@@ -101,6 +102,17 @@ export const getBusinessProvider = async () => {
 export const getAllCustomers = async () => {
   try {
     const response = await api.get(Endpoints.ALL_CUSTOMERS);
+    return response.data;
+  } catch (error) {
+    console.log('API Error:', error?.response?.data || error.message);
+    throw error?.response?.data || error;
+  }
+};
+export const getBOIById = async (prospectId) => {
+  console.log({prospectId})
+  try {
+    // This will call: http://10.0.2.2:5030/api/BOI/InsuranceCompany
+    const response = await api.get(Endpoints.GET_BOI_BY_ID, { params: { id: prospectId } });
     return response.data;
   } catch (error) {
     console.log('API Error:', error?.response?.data || error.message);

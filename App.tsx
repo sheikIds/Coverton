@@ -32,6 +32,7 @@ import DeviceInfo from 'react-native-device-info';
 import { COLOR, FONTS } from './src/utils/constants';
 import DashboardScreen from './src/screens/modules/Dashboard/DashboardScreen';
 import BusinessScreen from './src/screens/modules/Business/BusinessScreen';
+import RenewalsScreen from './src/screens/modules/Renewals/RenewalsScreen';
 // import CustomerScreen from './src/screens/modules/Customer/CustomerScreen';
 // import PolicyDetailsScreen from './src/screens/modules/Customer/PolicyDetailsScreen';
 import QuotationScreen from './src/screens/modules/Quotation/QuotationScreen';
@@ -105,12 +106,19 @@ const QuotationStack = () => (
   </Stack.Navigator>
 );
 
+const RenewalsStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="RenewalsMain" component={RenewalsScreen} />
+  </Stack.Navigator>
+);
+
 // ---------- Tab title mapping ----------
 const TAB_TITLES: Record<string, string> = {
   DashboardTab: 'Dashboard',
   BusinessTab: 'Business',
   CustomerTab: 'Customer',
   QuotationTab: 'Quotation',
+  RenewalsTab: 'Renewals',
 };
 
 // ---------- Bottom tabs ----------
@@ -136,6 +144,7 @@ const BottomTabs = () => {
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
+          fontFamily: FONTS.FONT_REGULAR,
         },
       }}
       screenListeners={{
@@ -210,7 +219,21 @@ const BottomTabs = () => {
           tabBarLabel: 'Quotation',
           tabBarIcon: ({ color, size }) => (
             <MaterialDesignIcons
-              name="account-cash-outline"
+              name="format-quote-open-outline"
+              size={size || 24}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="RenewalsTab"
+        component={RenewalsStack}
+        options={{
+          tabBarLabel: 'Renewals',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialDesignIcons
+              name="sync"
               size={size || 24}
               color={color}
             />
@@ -236,7 +259,8 @@ const drawerItems = [
   { label: 'Dashboard', icon: 'home-outline', tab: 'DashboardTab' },
   { label: 'Business', icon: 'bullseye', tab: 'BusinessTab' },
   // { label: 'Customer', icon: 'account-multiple-outline', tab: 'CustomerTab' },
-  { label: 'Quotation', icon: 'currency-usd', tab: 'QuotationTab' },
+  { label: 'Quotation', icon: 'format-quote-open-outline', tab: 'QuotationTab' },
+  { label: 'Renewals', icon: 'sync', tab: 'RenewalsTab' },
   { label: 'Logout', icon: 'logout', tab: 'Logout' },
 ];
 
@@ -343,8 +367,8 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
                     color={color}
                   />
                 )}
-                activeTintColor={COLOR.PRIMARY_COLOR}
-                inactiveTintColor={COLOR.PRIMARY_COLOR}
+                activeTintColor={COLOR.BLACK_COLOR}
+                inactiveTintColor={COLOR.BLACK_COLOR}
                 activeBackgroundColor={COLOR.SECONDARY_COLOR + '20'}
                 labelStyle={styles.drawerLabel}
                 style={styles.drawerItem}
@@ -364,8 +388,8 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
                 />
               )}
               focused={activeTab === item.tab}
-              activeTintColor={COLOR.PRIMARY_COLOR}
-              inactiveTintColor={COLOR.PRIMARY_COLOR}
+              activeTintColor={COLOR.BLACK_COLOR}
+              inactiveTintColor={COLOR.BLACK_COLOR}
               activeBackgroundColor={COLOR.SECONDARY_COLOR + '20'}
               labelStyle={styles.drawerLabel}
               style={styles.drawerItem}
@@ -374,11 +398,11 @@ const CustomDrawerContent = (props: DrawerContentComponentProps) => {
           );
         })}
       </View>
-      <View style={styles.versionContainer}>
+      {/* <View style={styles.versionContainer}>
         <Text style={styles.versionText}>
           Version {appVersion} - Dev
         </Text>
-      </View>
+      </View> */}
 
       {/* Logout Confirmation */}
       <Modal
@@ -446,6 +470,9 @@ const AppDrawer = () => {
           component={MainStack}
           options={({ navigation }) => ({
             title: headerTitle,
+            headerTitleStyle: {
+              fontFamily: FONTS.FONT_SEMIBOLD,
+            },
             headerLeft: () => <HeaderLeftButton navigation={navigation} />,
           })}
         />
@@ -543,7 +570,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontFamily: FONTS.FONT_BOLD,
-    color: COLOR.PRIMARY_COLOR,
+    color: COLOR.BLACK_COLOR,
     marginBottom: 4,
   },
   headerSubtitle: {
@@ -584,13 +611,13 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontFamily: FONTS.FONT_BOLD,
-    color: COLOR.PRIMARY_COLOR,
+    color: COLOR.BLACK_COLOR,
     marginBottom: 8,
   },
   modalMessage: {
     fontSize: 15,
     fontFamily: FONTS.FONT_REGULAR,
-    color: COLOR.PRIMARY_COLOR,
+    color: COLOR.BLACK_COLOR,
     marginBottom: 16,
   },
   modalButtons: {
@@ -607,14 +634,14 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     borderWidth: 1,
-    borderColor: COLOR.PRIMARY_COLOR,
+    borderColor: COLOR.BLACK_COLOR,
     backgroundColor: COLOR.WHITE_COLOR,
   },
   confirmButton: {
     backgroundColor: COLOR.RED_COLOR,
   },
   cancelButtonText: {
-    color: COLOR.PRIMARY_COLOR,
+    color: COLOR.BLACK_COLOR,
     fontFamily: FONTS.FONT_MEDIUM,
     fontSize: 14,
   },

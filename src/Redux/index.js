@@ -10,7 +10,7 @@ import { reducer as CustomerReducer } from './CustomerRedux';
 import { reducer as AuthReducer, INITIAL_STATE as AuthInitialState } from './AuthRedux';
 import { reducer as QuotationReducer } from './QuotationRedux';
 import { reducer as PolicyReducer } from './PolicyRedux';
-
+import { reducer as RenewalsReducer } from './RenewalsRedux';
 
 import rootSaga from '../Saga';
 
@@ -46,6 +46,7 @@ const reducers = combineReducers({
   auth: AuthReducer,
   quotation: QuotationReducer,
   policy: PolicyReducer,
+  renewals: RenewalsReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, reducers);

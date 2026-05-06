@@ -70,6 +70,12 @@ export const formatDate = date => {
   return `${day}/${month}/${year}`;
 };
 
+export const getTodayDate = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
 export const getTomorrowDate = () => {
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);

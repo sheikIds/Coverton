@@ -4,6 +4,7 @@ import { BusinessOpportunitiesTypes as BOTypes } from '../Redux/BusinessOpportun
 import { CustomerTypes } from '../Redux/CustomerRedux';
 import { QuotationTypes } from '../Redux/QuotationRedux';
 import { PolicyTypes } from '../Redux/PolicyRedux';
+import { RenewalsTypes } from '../Redux/RenewalsRedux';
 import { AuthTypes } from '../Redux/AuthRedux';
 
 import {
@@ -15,6 +16,7 @@ import {
   getInsuranceCompanies,
   quotationRequest,
   getAllCustomers,
+  getBOIById,
 } from './BusinessOpportunitiesSaga';
 import {
   getCustomersName,
@@ -35,6 +37,8 @@ import {
   getPreferredQuotation,
   getQuotationConfirm,
   confirmQuotation,
+  getViewQuotation,
+  getQuotationDocumentDetails
 } from './QuotationSaga';
 import {
   getPolicy
@@ -44,6 +48,13 @@ import {
   signOut,
   restoreAuth,
 } from './AuthSaga';
+import {
+  getRenewal,
+  getRenewalArchive,
+  getRenewalReasons,
+  createRenew,
+  createRenewalLostDropped,
+} from './RenewalsSaga';
 
 export default function* root() {
   yield all([
@@ -55,6 +66,7 @@ export default function* root() {
     takeLatest(BOTypes.GET_INSURANCE_COMPANIES, getInsuranceCompanies),
     takeLatest(BOTypes.QUOTATION_REQUEST, quotationRequest),
     takeLatest(BOTypes.GET_ALL_CUSTOMERS, getAllCustomers),
+    takeLatest(BOTypes.GET_BOI_BY_ID, getBOIById),
 
     takeLatest(CustomerTypes.GET_CUSTOMERS_NAME, getCustomersName),
     takeLatest(CustomerTypes.GET_CUSTOMER_FIELDS, getCustomerFields),
@@ -73,12 +85,20 @@ export default function* root() {
     takeLatest(QuotationTypes.GET_PREFERRED_QUOTATION, getPreferredQuotation),
     takeLatest(QuotationTypes.GET_QUOTATION_CONFIRM, getQuotationConfirm),
     takeLatest(QuotationTypes.CONFIRM_QUOTATION, confirmQuotation),
+    takeLatest(QuotationTypes.GET_VIEW_QUOTATION, getViewQuotation),
+    takeLatest(QuotationTypes.GET_QUOTATION_DOCUMENT_DETAILS, getQuotationDocumentDetails),
+
 
     takeLatest(PolicyTypes.GET_POLICY, getPolicy),
+
+    takeLatest(RenewalsTypes.GET_RENEWAL, getRenewal),
+    takeLatest(RenewalsTypes.GET_RENEWAL_ARCHIVE, getRenewalArchive),
+    takeLatest(RenewalsTypes.GET_RENEWAL_REASONS, getRenewalReasons),
+    takeLatest(RenewalsTypes.CREATE_RENEW, createRenew),
+    takeLatest(RenewalsTypes.CREATE_RENEWAL_LOST_DROPPED, createRenewalLostDropped),
 
     yield takeLatest(AuthTypes.SIGN_IN, signIn),
     yield takeLatest(AuthTypes.SIGN_OUT, signOut),
     yield takeLatest(AuthTypes.RESTORE_AUTH, restoreAuth),
-
   ]);
 }

@@ -66,19 +66,6 @@ export function* getQuotationById({ quotationId }) {
   }
 }
 export function* getPreferredQuotation({ prospectId }) {
-  // try {
-  //   const response = yield call(QuotationAPI.getPreferredQuotation, { prospectId });
-  //   console.log({ PREFERREDSaga_Response: response })
-  //   if (response?.err) {
-  //     yield put(QuotationActions.setGetPreferredQuotationRequestStatus(RequestStatus.ERROR));
-  //     return;
-  //   }
-  //   const preferredQuotation = response.data ?? response ?? [];
-  //   yield put(QuotationActions.storeGetPreferredQuotations(preferredQuotation));
-  //   yield put(QuotationActions.setGetPreferredQuotationRequestStatus(RequestStatus.OK));
-  // } catch (e) {
-  //   yield put(QuotationActions.setGetPreferredQuotationRequestStatus(RequestStatus.ERROR));
-  // }
   const response = yield call(QuotationAPI.getPreferredQuotation, { prospectId });
 
   if (response.err) {
@@ -123,3 +110,38 @@ export function* confirmQuotation({ quotationData }) {
     yield put(QuotationActions.setConfirmQuotationRequestStatus(RequestStatus.ERROR));
   }
 }
+
+export function* getViewQuotation({ params }) {
+  try {
+    const response = yield call(QuotationAPI.getViewQuotation, params)
+    if (response?.err) {
+      yield put(QuotationActions.setGetViewQuotationRequestStatus(RequestStatus.ERROR))
+      return
+    }
+    const viewQuotationData = response.data ?? response ?? {}
+    yield all([
+      put(QuotationActions.setGetViewQuotationRequestStatus(RequestStatus.OK)),
+      put(QuotationActions.storeViewQuotation(viewQuotationData))
+    ])
+  } catch (e) {
+    yield put(QuotationActions.setGetViewQuotationRequestStatus(RequestStatus.ERROR))
+  }
+}
+
+export function* getQuotationDocumentDetails({quotationId}){
+const response = yield call(QuotationAPI.getQuotationDocumentDetails, { quotationId });
+console.log({SagarRes: response})
+
+  if (response.err) {
+    yield put(QuotationActions.setGetQuotationDocumentDetailsRequestStatus(RequestStatus.ERROR));
+  } else {
+    let quotationDocumentDetails = response ?? response ?? [];
+    console.log({quotationDocumentDetails})
+
+    yield all([
+      yield put(QuotationActions.storeQuotationDocumentDetails(quotationDocumentDetails)),
+      yield put(QuotationActions.setGetQuotationDocumentDetailsRequestStatus(RequestStatus.OK))
+    ])
+  }
+}
+

@@ -42,13 +42,17 @@ const QuotationCard = ({ data, onPress }) => {
             size={22}
             style={styles.icon}
           />
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={styles.idText}>{id}</Text>
 
-            <Text style={styles.customerText}>
+            <Text style={styles.customerText} numberOfLines={1}>
               {customerName}
-              {insurerName ? ` (${insurerName})` : ''}
             </Text>
+            {!!insurerName && (
+              <Text style={styles.insurerText} numberOfLines={1}>
+                {insurerName}
+              </Text>
+            )}
           </View>
         </View>
 
@@ -56,7 +60,6 @@ const QuotationCard = ({ data, onPress }) => {
           style={[
             styles.statusPill,
             {
-
               borderColor: statusColor,
               backgroundColor: `${statusColor}20`, // light tinted bg
             },
@@ -136,6 +139,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#111827',
   },
+  insurerText: {
+    fontSize: 12,
+    color: '#4B5563',
+    marginTop: 2,
+  },
   idText: {
     marginTop: 2,
     fontSize: 11,
@@ -162,7 +170,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E5E7EB',
+    // backgroundColor: '#E5E7EB',
     marginVertical: 10,
   },
   row: {

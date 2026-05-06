@@ -25,6 +25,7 @@ import { createShimmerPlaceholder } from 'react-native-shimmer-placeholder';
 import LinearGradient from 'react-native-linear-gradient';
 import CommonHeader from '../../components/CommonHeader';
 import CustomerConversionModal from './CustomerConversionModal';
+import BOIDetailModal from './BOIDetailModal';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
@@ -76,6 +77,7 @@ const BusinessScreen = props => {
   });
   const [prospectId, setProspectId] = useState(null);
   const [quotationModalVisible, setQuotationModalVisible] = useState(false);
+  const [detailModalItem, setDetailModalItem] = useState(null);
 
   const slideAnim = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
   const isFocused = useIsFocused();
@@ -613,9 +615,9 @@ const BusinessScreen = props => {
     return (
       <View style={styles.hiddenItemContainer}>
         <TouchableOpacity
-          style={[styles.editButton, { backgroundColor: item?.stage === 'BOI Created' ? '#FFFFFF' : '#F8FAFC' }]}
+          style={[styles.editButton, { backgroundColor: (item?.status !== 'Lost' && item?.stage === 'BOI Created') ? '#FFFFFF' : '#F8FAFC' }]}
           onPress={() => handleEditLead(item)}
-          disabled={!(item?.stage === 'BOI Created')}
+          disabled={item?.status === 'Lost' ||!(item?.stage === 'BOI Created')}
           activeOpacity={0.8}
         >
           <View style={styles.iconContainer}>
@@ -628,14 +630,14 @@ const BusinessScreen = props => {
           <Text style={styles.editButtonText}>Edit</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.convertButton, { backgroundColor: item?.stage === 'BOI Created' ? '#FFFFFF' : '#F8FAFC' }]}
-          disabled={!(item?.stage === 'BOI Created')}
+          style={[styles.convertButton, { backgroundColor: (item?.status !== 'Lost' && item?.stage === 'BOI Created') ? '#FFFFFF' : '#F8FAFC' }]}
+          disabled={item?.status === 'Lost' ||!(item?.stage === 'BOI Created')}
           onPress={() => handleQuotationModal(item)}
           activeOpacity={0.8}
         >
           <View style={styles.iconContainer}>
             <MaterialDesignIcons
-              name="format-quote-close"
+              name="format-quote-open"
               size={20}
               color={COLOR.BLACK_COLOR}
             />
@@ -691,7 +693,7 @@ const BusinessScreen = props => {
         barStyle="light-content"
         backgroundColor={COLOR.PRIMARY_COLOR}
       />
-      {isLoading ? null : renderHeader()}
+      {renderHeader()}
 
       {(isLoading || isDebouncing) && pageNumber === 1 ? (
         <View>
@@ -713,6 +715,7 @@ const BusinessScreen = props => {
               ]}
             >
               <BusinessLeadMangementCard leadData={item}
+                onPress={(selected) => setDetailModalItem(selected)}
               />
             </View>
           )}
@@ -792,6 +795,11 @@ const BusinessScreen = props => {
           }
           slideAnim={slideAnim}
         /> : null}
+      <BOIDetailModal
+        visible={!!detailModalItem}
+        onClose={() => setDetailModalItem(null)}
+        prospectId={detailModalItem?.prospectID}
+      />
     </View>
   );
 };

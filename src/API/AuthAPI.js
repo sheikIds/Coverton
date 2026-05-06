@@ -24,7 +24,7 @@ export const sendOTP = async ({ emailId }) => {
 
     return response.data;
   } catch (error) {
-    console.error('sendOTP API Error:', error?.response?.data || error);
+    console.log('sendOTP API Error:', error?.response?.data || error);
     throw error?.response?.data || error;
   }
 };

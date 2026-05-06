@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React from 'react'
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
-import { COLOR } from '../../utils/constants';
+import { COLOR, FONTS } from '../../utils/constants';
 import CustomInput from './CustomInput'
 const CommonHeader = (props) => {
   const { leads, searchText, setSearchText, isLoading, handleAdditionalFunction, handleFilterOpen } = props;
@@ -58,7 +58,7 @@ const CommonHeader = (props) => {
             color={COLOR.PRIMARY_COLOR}
             size={16}
           />
-          <Text style={styles.addButtonText}>Add New</Text>
+          <Text style={styles.addButtonText}>New</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -100,13 +100,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   titleText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: FONTS.FONT_SEMIBOLD,
     fontSize: 22,
     color: '#1A1A1A',
     letterSpacing: -0.5,
   },
   subtitleText: {
-    fontFamily: 'Poppins-Regular',
+    fontFamily: FONTS.FONT_REGULAR,
     fontSize: 13,
     color: '#6B7280',
     marginTop: 2,
@@ -123,11 +123,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     paddingHorizontal: 7,
-    width: '25%'
+    width: '20%'
   },
   addButtonText: {
     fontSize: 12,
-    fontFamily: 'Poppins-Medium',
+    fontFamily: FONTS.FONT_MEDIUM,
     marginLeft: 4
   },
   filterButton: {

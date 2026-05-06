@@ -59,6 +59,7 @@ export function* getInsuranceCompanies({ categoryId }) {
 }
 
 export function* getLeads({ params }) {
+  console.log({sagBus: params})
   try {
     const response = yield call(BusinessOpportunitiesAPI.getLeads, params)
     if (response?.err) {
@@ -134,23 +135,43 @@ export function* quotationRequest({ prospectId }) {
 }
 
 export function* getAllCustomers() {
-  try {
-    const response = yield call(BusinessOpportunitiesAPI.getAllCustomers);
-    console.log({ sagaResponse: response });
-    
-    if (response?.err) {
-      yield put(BusinessOpportunitiesActions.setAllCustomersRequestStatus(RequestStatus.ERROR));
-      return;
-    }
-
+  const response = yield call(BusinessOpportunitiesAPI.getAllCustomers);
+  console.log({csutomerRes: response})
+  if (response?.err) {
+    yield put(
+      BusinessOpportunitiesActions.setAllCustomersRequestStatus(
+        RequestStatus.ERROR,
+      ),
+    );
+    return;
+  } else {
     const allCustomers = response.data ?? response ?? [];
-    
+
     yield all([
-      put(BusinessOpportunitiesActions.setAllCustomersRequestStatus(RequestStatus.OK)),
-      put(BusinessOpportunitiesActions.storeAllCustomers(allCustomers))
+      put(
+        BusinessOpportunitiesActions.setAllCustomersRequestStatus(
+          RequestStatus.OK,
+        ),
+      ),
+      put(BusinessOpportunitiesActions.storeAllCustomers(allCustomers)),
     ]);
-  } catch (error) {
-    console.error('getAllCustomers saga error:', error);
-    yield put(BusinessOpportunitiesActions.setAllCustomersRequestStatus(RequestStatus.ERROR));
+  }
+}
+
+export function* getBOIById({ prospectId }) {
+  const response = yield call(BusinessOpportunitiesAPI.getBOIById, prospectId);
+  if (response?.err) {
+    yield put(
+      BusinessOpportunitiesActions.setBOIByIdRequestStatus(RequestStatus.ERROR),
+    );
+    return;
+  } else {
+    const boiById = response.data ?? response ?? [];
+    yield all([
+      put(
+        BusinessOpportunitiesActions.setBOIByIdRequestStatus(RequestStatus.OK),
+      ),
+      put(BusinessOpportunitiesActions.storeBOIById(boiById)),
+    ]);
   }
 }

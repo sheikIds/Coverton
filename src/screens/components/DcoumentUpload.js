@@ -2,7 +2,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React from 'react'
 import MaterialDesignIcons from '@react-native-vector-icons/material-design-icons';
 
-import { COLOR } from '../../../utils/constants';
+import { COLOR, FONTS } from '../../utils/constants';
 
 const DocumentUploadField = ({ label, docType, document }) => (
     <View style={styles.formGroup}>
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
         marginBottom: 20,
       },
       formLabel: {
-        fontFamily: 'Poppins-Medium',
+        fontFamily: FONTS.FONT_MEDIUM,
         fontSize: 14,
         color: '#374151',
         marginBottom: 8,
@@ -83,13 +83,13 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
       },
       documentUploadText: {
-        fontFamily: 'Poppins-Medium',
+        fontFamily: FONTS.FONT_MEDIUM,
         fontSize: 14,
         color: '#374151',
         marginTop: 8,
       },
       documentUploadSubtext: {
-        fontFamily: 'Poppins-Regular',
+        fontFamily: FONTS.FONT_REGULAR,
         fontSize: 12,
         color: '#9CA3AF',
         marginTop: 4,
@@ -115,12 +115,12 @@ const styles = StyleSheet.create({
         flex: 1,
       },
       documentName: {
-        fontFamily: 'Poppins-Medium',
+        fontFamily: FONTS.FONT_MEDIUM,
         fontSize: 13,
         color: '#1F2937',
       },
       documentViewText: {
-        fontFamily: 'Poppins-Regular',
+        fontFamily: FONTS.FONT_REGULAR,
         fontSize: 11,
         color: COLOR.PRIMARY_COLOR,
         marginTop: 2,

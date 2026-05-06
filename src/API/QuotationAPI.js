@@ -71,15 +71,29 @@ export const getPreferredQuotation = async ({ prospectId }) => {
 };
 
 export const confirmQuotation = async ({ quotationData }) => {
-  // const response = await apiClient.post(Endpoints.CONFIRM_QUOTATION, quotationData);
-  // return response.data;
   try {
     const response = await api.post(Endpoints.CONFIRM_QUOTATION, quotationData);
+    console.log({responseAPI: response})
 
     return response.data;
   } catch (error) {
-    console.error('API Error:', error?.response?.data || error);
+    console.log('API Error:', error?.response?.data || error);
+    throw error?.response?.data || error;
+  }
+};
+export const getViewQuotation = async (params) => {
+  console.log({params})
+  try {
+    // This will call GET: http://10.0.2.2:5030/api/BOI/getLead
+    const response = await api.get(Endpoints.VIEW_QUOTATION, { params });
+    return response.data;
+  } catch (error) {
+    console.log('API Error:', error?.response?.data || error.message);
     throw error?.response?.data || error;
   }
 };
 
+export const getQuotationDocumentDetails = async ({ quotationId }) => {
+    const response = await api.get(`${Endpoints.QUOTATION_DOCUMENT_DETAILS}?quotationid=${quotationId}`);
+    return response.data;
+}

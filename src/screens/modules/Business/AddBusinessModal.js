@@ -35,7 +35,7 @@ import { BusinessOpportunitiesActions } from '../../../Redux/BusinessOpportuniti
 import { CustomerActions } from '../../../Redux/CustomerRedux';
 
 import * as RequestStatus from '../../../Entities/RequestStatus';
-import { getCategoriesByProduct, formatDate, getTomorrowDate } from '../../../utils/utils';
+import { getCategoriesByProduct, formatDate, getTodayDate } from '../../../utils/utils';
 import { buildLeadPayload } from '../../../utils/buildLeadPayload';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -1134,12 +1134,12 @@ const AddBusinessModal = props => {
                   value={
                     leadData.timeByWhen
                       ? new Date(leadData.timeByWhen)
-                      : getTomorrowDate()
+                      : getTodayDate()
                   }
                   mode="date"
                   display={Platform.OS === 'ios' ? 'spinner' : 'calendar'}
                   onChange={handleDateChange}
-                  minimumDate={getTomorrowDate()}
+                  minimumDate={getTodayDate()}
                   maximumDate={getMaxDate()}
                   textColor="#1F2937"
                   positiveButton={{

@@ -84,7 +84,7 @@ const DashboardScreen = () => {
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.heroCard}>
             <View style={styles.heroHeader}>
-              <MaterialDesignIcons name="wallet" size={18} color="#fff" />
+              <MaterialDesignIcons name="wallet" size={18} color="#0f172a" />
               <Text style={styles.heroTitle}>Total Premium</Text>
             </View>
 
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
     margin: 16,
     padding: 18,
     borderRadius: 18,
-    backgroundColor: '#6366f1',
+    backgroundColor: COLOR.LIGHT_BACKGROUND,
   },
 
   heroHeader: {
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
 
   heroTitle: {
-    color: '#e0e7ff',
+    color: '#0f172a',
     fontSize: 13,
     marginLeft: 6,
     fontWeight: '600',
@@ -160,12 +160,12 @@ const styles = StyleSheet.create({
   heroAmount: {
     fontSize: 30,
     fontWeight: '800',
-    color: '#fff',
+    color: '#0f172a',
   },
 
   heroSub: {
     fontSize: 11,
-    color: '#c7d2fe',
+    color: '#0f172a',
     marginTop: 4,
   },
 

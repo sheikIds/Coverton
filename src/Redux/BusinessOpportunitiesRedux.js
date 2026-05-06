@@ -16,6 +16,8 @@ export const INITIAL_STATE = Immutable({
   quotationRequestStatus: RequestStatus.INITIAL,
   getAllCustomersRequestStatus: RequestStatus.INITIAL,
   allCustomers: [],
+  getBOIByIdRequestStatus: RequestStatus.INITIAL,
+  boiById: [],
 })
 
 const { Types, Creators } = createActions({
@@ -40,6 +42,9 @@ const { Types, Creators } = createActions({
   getAllCustomers: [],
   setAllCustomersRequestStatus: ['status'],
   storeAllCustomers: ['allCustomers'],
+  getBOIById: ['prospectId'],
+  setBOIByIdRequestStatus: ['status'],
+  storeBOIById: ['boiById'],
 })
 
 export const BusinessOpportunitiesTypes = Types
@@ -149,6 +154,22 @@ export const storeAllCustomers = (state, { allCustomers }) => {
   })
 }
 
+export const getBOIById = (state = INITIAL_STATE, action = {}) => {
+  return state.merge({
+    getBOIByIdRequestStatus: RequestStatus.INPROGRESS,
+  })
+}
+
+export const setBOIByIdRequestStatus = (state, { status }) =>
+  state.merge({ getBOIByIdRequestStatus: status })
+
+export const storeBOIById = (state, { boiById }) => {
+  return state.merge({
+    boiById: boiById?.responseData ?? boiById ?? [],
+    getBOIByIdRequestStatus: RequestStatus.SUCCESS,
+  })
+}
+
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_PRODUCTS]: getProducts,
   [Types.STORE_PRODUCTS]: storeProducts,
@@ -171,4 +192,7 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.GET_ALL_CUSTOMERS]: getAllCustomers,
   [Types.SET_ALL_CUSTOMERS_REQUEST_STATUS]: setAllCustomersRequestStatus,
   [Types.STORE_ALL_CUSTOMERS]: storeAllCustomers,
+  [Types.GET_BOI_BY_ID]: getBOIById,
+  [Types.SET_BOI_BY_ID_REQUEST_STATUS]: setBOIByIdRequestStatus,
+  [Types.STORE_BOI_BY_ID]: storeBOIById,
 })  

@@ -13,7 +13,11 @@ export const INITIAL_STATE = Immutable({
   quotationConfirm: [],
   quotationConfirmRequestStatus: RequestStatus.INITIAL,
   confirmQuotationRequestStatus: RequestStatus.INITIAL,
-
+  viewQuotationRequestStatus: RequestStatus.INITIAL,
+  viewQuotation: [],
+  viewQuotationPagination: null,
+  quotationDocumentDetails: [],
+  getQuotationDocumentDetailsRequestStatus: RequestStatus.INITIAL,
 });
 
 const { Types, Creators } = createActions({
@@ -33,6 +37,13 @@ const { Types, Creators } = createActions({
   storeQuotationConfirm: ['data'],
   confirmQuotation: ['quotationData'],
   setConfirmQuotationRequestStatus: ['status'],
+  getViewQuotation: ['params'],
+  setGetViewQuotationRequestStatus: ['status'],
+  storeViewQuotation: ['viewQuotation'],
+  getQuotationDocumentDetails: ['quotationId'],
+  setGetQuotationDocumentDetailsRequestStatus: ['status'],
+  storeQuotationDocumentDetails: ['quotationDocumentDetails'],
+  clearQuotationDocumentDetails: [],
 });
 
 export const QuotationTypes = Types;
@@ -120,6 +131,47 @@ export const confirmQuotation = (state, { quotationData }) =>
 export const setConfirmQuotationRequestStatus = (state, { status }) =>
   state.merge({ confirmQuotationRequestStatus: status });
 
+export const getViewQuotation = (state) =>
+    state.merge( {
+        viewQuotationRequestStatus: RequestStatus.INPROGRESS,
+    });
+
+export const setGetViewQuotationRequestStatus = (state, { status }) =>
+    state.merge( { viewQuotationRequestStatus: status });
+
+export const storeViewQuotation = (state, { viewQuotation }) => {
+    const { records, pagination } = viewQuotation || {};
+    const pageNumber = pagination?.pageNumber ?? 1;
+
+    return state.merge({
+        viewQuotation: pageNumber === 1
+            ? (records || [])
+            : [...(state.viewQuotation || []), ...(records || [])],
+        viewQuotationPagination: pagination || null,
+        viewQuotationRequestStatus: RequestStatus.OK,
+    });
+};
+export const getQuotationDocumentDetails = (state, { quotationId }) =>
+    state.merge( {
+        getQuotationDocumentDetailsRequestStatus: RequestStatus.INPROGRESS,
+    });
+
+export const setGetQuotationDocumentDetailsRequestStatus = (state, { status }) =>
+    state.merge( { getQuotationDocumentDetailsRequestStatus: status });
+
+export const storeQuotationDocumentDetails = (state, { quotationDocumentDetails }) => {
+    return state.merge({
+        quotationDocumentDetails: quotationDocumentDetails || [],
+        getQuotationDocumentDetailsRequestStatus: RequestStatus.OK,
+    });
+};
+
+export const clearQuotationDocumentDetails = (state) => {
+    return state.merge({
+        quotationDocumentDetails: [],
+        getQuotationDocumentDetailsRequestStatus: RequestStatus.INITIAL,
+    });
+};
 
 export const reducer = createReducer(INITIAL_STATE, {
   [Types.CREATE_QUOTATION]: createQuotation,
@@ -138,4 +190,11 @@ export const reducer = createReducer(INITIAL_STATE, {
   [Types.STORE_QUOTATION_CONFIRM]: storeQuotationConfirm,
   [Types.CONFIRM_QUOTATION]: confirmQuotation,
   [Types.SET_CONFIRM_QUOTATION_REQUEST_STATUS]: setConfirmQuotationRequestStatus,
+  [Types.GET_VIEW_QUOTATION]: getViewQuotation,
+  [Types.SET_GET_VIEW_QUOTATION_REQUEST_STATUS]: setGetViewQuotationRequestStatus,
+  [Types.STORE_VIEW_QUOTATION]: storeViewQuotation,
+  [Types.GET_QUOTATION_DOCUMENT_DETAILS]: getQuotationDocumentDetails,
+  [Types.SET_GET_QUOTATION_DOCUMENT_DETAILS_REQUEST_STATUS]: setGetQuotationDocumentDetailsRequestStatus,
+  [Types.STORE_QUOTATION_DOCUMENT_DETAILS]: storeQuotationDocumentDetails,
+  [Types.CLEAR_QUOTATION_DOCUMENT_DETAILS]: clearQuotationDocumentDetails,
 });

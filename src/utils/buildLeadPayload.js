@@ -55,6 +55,12 @@ export const buildLeadPayload = ({
         }
     }
 
+    // If no product-specific data was added, send boiigt as null
+    const finalBoiigt =
+        boiigt.additionals.length === 0 && boiigt.members.length === 0
+            ? null
+            : boiigt;
+
     return {
         type: user?.role || '',
         consultant: leadData.consultant || '',
@@ -70,6 +76,6 @@ export const buildLeadPayload = ({
         directExpenditure: leadData.directExpenditure || 0,
         timeByWhen: leadData.timeByWhen || new Date().toISOString(),
         preferred,
-        boiigt,
+        boiigt: finalBoiigt,
     };
 };

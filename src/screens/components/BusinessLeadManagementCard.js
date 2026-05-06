@@ -6,7 +6,7 @@ import MaterialDesignIcons from '@react-native-vector-icons/material-design-icon
 
 
 const BusinessLeadManagementCard = props => {
-  const { leadData } = props;
+  const { leadData, onPress } = props;
   const getLeadTemperature = dateString => {
     if (!dateString) return { label: 'Cold', color: '#95A5A6' };
 
@@ -25,7 +25,11 @@ const BusinessLeadManagementCard = props => {
   console.log({leadData})
 
   return (
-    <View style={styles.cardContainer}>
+    <TouchableOpacity
+      style={styles.cardContainer}
+      activeOpacity={0.8}
+      onPress={() => onPress?.(leadData)}
+    >
       <View style={styles.headerRow}>
         <View style={styles.titleBadge}>
           <Text style={styles.titleText}>{leadData.prospectID}</Text>
@@ -95,7 +99,7 @@ const BusinessLeadManagementCard = props => {
           </Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
